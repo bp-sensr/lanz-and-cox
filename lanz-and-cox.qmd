@@ -43,7 +43,7 @@ library(leaflet)
 wt_auth()
 
 load("lanz-and-cox.RData")
-#save.image("lanz-and-cox.RData")
+save.image("lanz-and-cox.RData")
 
 ```
 
@@ -121,7 +121,9 @@ seabirds <- c(
   "Black-footed Albatross",
   "Pink-footed Shearwater",
   "Marbled Murrelet",
-  "Ancient Murrelet"
+  "Ancient Murrelet",
+  "Black Oystercatcher",
+  "Leach's Storm-petrel"
 )
 
 wt_get_species() |>
