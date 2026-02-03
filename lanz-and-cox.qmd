@@ -263,7 +263,8 @@ ggplot(bcsi_individuals, aes(noise_level, n)) +
 
 bcsi_seabirds <- wt_download_report(4069, 'ARU', c('main','ai'))
 
-eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE, species = "MAMU")
+eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
+wt_classifier_threshold(eval)
 wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
@@ -277,7 +278,12 @@ For each sampling location and year, a total of nine autonomous recording unit (
 
 ### Evaluating performance of HawkEars on Common Murre and Marbled Murrelet
 
+```{r}
 
+ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
+  geom_smooth()
+
+```
 
 ### Creating annotation datasets and new classifier implementation
 
