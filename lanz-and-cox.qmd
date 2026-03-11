@@ -4,6 +4,14 @@ format:
   html:
     grid:
       margin-width: 300px
+  pdf:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - margin=1in
+    papersize: letter
 navbar: right
 theme: cosmo
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -39,11 +47,14 @@ github: https://github.com/biodiversitypathways/lanz-and-cox
 library(wildrtrax)
 library(tidyverse)
 library(leaflet)
+library(vegan)
+library(kableExtra)
+library(ggridges)
 
 wt_auth()
 
 load("lanz-and-cox.RData")
-save.image("lanz-and-cox.RData")
+#save.image("lanz-and-cox.RData")
 
 ```
 
@@ -69,7 +80,7 @@ This report is dynamically generated, meaning its results may evolve with the ad
 
 # Abstract
 
-Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities across multiple breeding seasons prior to invasive mink and raccoon eradication. Autonomous Recording Units (ARUs; SM4) were deployed at `r length(unique(bcsi$location))` locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a pre-eradication baseline to support evaluation of seabird prospecting activity and future changes in songbird communities following invasive predator removal.
+Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous Recording Units (ARUs; SM4) were deployed at `r length(unique(bcsi$location))` locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
 
 # Land Acknowledgement
 
@@ -80,6 +91,8 @@ Lanz and Cox Islands support important seabird and songbird habitats, yet popula
 # Methods
 
 ## Data collection
+
+ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600))` audio hours of data (@fig-bcsi-recs). 
 
 ```{r}
 #| echo: false
@@ -106,6 +119,27 @@ leaflet() %>%
 ```
 
 ```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| label: tbl-loc-summary
+#| tbl-cap: Locations surveyed across years. Ones indicated a deployment in that year for that location
+
+bcsi_locs <- bcsi_main |>
+  mutate(year = year(recording_date_time)) |>
+  select(location, year, latitude, longitude) |>
+  distinct() |>
+  drop_na(latitude) |>
+  mutate(surveyed = 1) |>
+  pivot_wider(names_from = year, values_from = surveyed, values_fill = 0)
+
+kable(bcsi_locs)
+
+```
+
+```{r}
 #| echo: false
 #| eval: false
 #| warning: false
@@ -126,11 +160,11 @@ seabirds <- c(
   "Leach's Storm-petrel"
 )
 
-wt_get_species() |>
-  filter(species_common_name %in% seabirds)
-
-wt_get_project_species(4069) |>
-  filter(species_common_name %in% seabirds)
+# wt_get_species() |>
+#   filter(species_common_name %in% seabirds)
+# 
+# wt_get_project_species(4069) |>
+#   filter(species_common_name %in% seabirds)
 
 bcsi_recs <- wt_get_sync("organization_recordings", organization = 5853)
 
@@ -141,7 +175,10 @@ bcsi_recs <- wt_get_sync("organization_recordings", organization = 5853)
 #| eval: true
 #| warning: false
 #| message: false
-#| include: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Recordings collected from Lanz and Cox Provincial Park ARU Monitoring Program
+#| label: fig-bcsi-recs
 
 bcsi_recs |>
   mutate(date = as.Date(recording_date_time)) |>
@@ -156,6 +193,165 @@ bcsi_recs |>
   theme_minimal()
 
 ```
+
+## Data management, processing and quality control
+
+All recordings were uploaded to [WildTrax](https://wildtrax.ca) in order for the data to be accessible and stored. Locations name were confirmed against the deployment information to ensure data from each location was consistently named across years.
+
+## Community data processing
+
+For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns. Coastal proximity may reduce ARU detection effectiveness, as wave action and wind-driven noise can mask vocalizations and shrink effective detection distances (@pijankowski2011landscape). We therefore examined whether distance to the nearest coastline predicted observed species richness across monitoring locations. We also compared geophonic acoustic indices (@towsey2017calculation) against WildTrax noise metrics to establish thresholds for task exclusion and to characterize background noise conditions at each site.
+
+## Evaluating the performance of HawkEars v1.0.8 on seabirds
+
+To assess the accuracy of the HawkEars classifier for three focal species, Common Murre, Marbled Murrelet, and Black Oystercatcher, we extracted all recordings from WildTrax in which the classifier returned a detection score ≥ 0.5. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified.
+Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species — balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+
+bcsi_seabirds <- wt_download_report(4069, 'ARU', c('main','ai'))
+
+eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
+wt_classifier_threshold(eval)
+wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
+```
+
+## HawkEars 2.0
+
+Insert HawkEars 2.0 here.
+
+# Results
+
+## Species richness and diversity
+
+A total of `r nrow(distinct_spp)` species were found. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon).
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| eval: true
+#| include: false
+
+spp_rich_location <- bcsi_main |>
+  as_tibble() |>
+  wt_tidy_species(remove = c("amphibian","abiotic","insect","unknown"), zerofill = F) |>
+  mutate(year = lubridate::year(recording_date_time)) |>
+  select(location, year, species_code) |>
+  distinct() |>
+  group_by(location, year) |>
+  summarise(species_count = n_distinct(species_code)) |>
+  ungroup()
+
+distinct_spp <- bcsi_main |>
+  as_tibble() |>
+  wt_tidy_species(remove = c("amphibian","abiotic","insect","unknown"), zerofill = F) |>
+  mutate(year = lubridate::year(recording_date_time)) |>
+  select(species_code) |>
+  distinct() |>
+  arrange(species_code)
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| eval: true
+#| include: true
+#| fig-align: center
+#| fig-cap: Species richness at forest monitoring locations across years
+#| label: fig-spp-rich-locs
+
+spp_rich_location |>
+  ggplot(aes(x=as.factor(year), y=species_count, fill=as.factor(year), group=as.factor(year))) +
+  geom_boxplot(alpha = 0.7) +
+  geom_point(alpha = 0.7) +
+  theme_bw() +
+  scale_fill_viridis_d(option = "turbo") +
+  xlab('Year') + ylab('Species richness') +
+  ggtitle('Species richness at each location surveyed for each year') +
+  theme(legend.position = "none")
+
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| results: hide
+#| fig-align: center
+#| fig-cap: Shannon diversity index over years
+#| label: fig-shannon
+#| cap-location: bottom
+#| code-fold: true
+
+bcsi_main |> 
+  wt_tidy_species(remove = c("amphibian","abiotic","insect","unknown"), zerofill = F) |>
+  inner_join(wt_get_species() |> select(species_code, species_class, species_order), by = "species_code") |>
+  select(location, recording_date_time, species_code, species_common_name, individual_order, abundance) |>
+  distinct() |>
+  group_by(location, recording_date_time, species_code, species_common_name) |>
+  summarise(count = max(individual_order)) |>
+  ungroup() |>
+  pivot_wider(names_from = species_code, values_from = count, values_fill = 0) |>
+  pivot_longer(cols = -(location:species_common_name), names_to = "species", values_to = "count") |>
+  group_by(location, year = year(recording_date_time), species) |>
+  summarise(total_count = sum(count)) |>
+  ungroup() |>
+  group_by(location, year) |>
+  summarise(shannon_index = diversity(total_count, index = "shannon")) |>
+  ungroup() |>
+  ggplot(aes(x = factor(year), y = shannon_index, fill = factor(year))) +
+  geom_boxplot() +
+  geom_point(alpha = 0.6, colour = "grey") +
+  labs(x = "Year",
+       y = "Shannon diversity index per location") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_fill_viridis_d(alpha = 0.7, option = "turbo") +
+  ylim(0,3)
+
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| results: hide
+#| fig-align: center
+#| fig-cap: Seasonal detection activity of most commonly detected forest species
+#| label: fig-spp-activity
+
+bcsi_main |>
+  wt_tidy_species(remove = c("amphibian","abiotic","insect","unknown"), zerofill = T) |>
+  filter(!species_code == "NONE") |>
+  select(location, recording_date_time, species_common_name, species_code, abundance) |>
+  mutate(julian = lubridate::yday(recording_date_time),
+         month= month(recording_date_time),
+         year = factor(year(recording_date_time))) |>
+  arrange(species_code) |>
+  group_by(species_code) |>
+  add_tally() |>
+  ungroup() |>
+  filter(!n<3) |>
+  ggplot(aes(x = julian, y = species_common_name)) + 
+  geom_density_ridges(scale = 3, rel_min_height = 0.005, alpha = 0.4) + 
+  theme_bw() +
+  xlab("Day of Year") + 
+  ylab("Species")
+
+```
+
+### Proximity to ocean and noise effects
 
 ```{r}
 #| echo: false
@@ -199,7 +395,7 @@ bcsi_main_noise <- bcsi_main |>
   inner_join(bcsi_noise, by = "task_id")
   
 bcsi_richness <- bcsi_main_noise %>%
-  group_by(recording_id, noise_level, noise_level_num, noise_pattern_num) %>%
+  group_by(location, recording_id, noise_level, noise_level_num, noise_pattern_num) %>%
   summarise(
     richness = n_distinct(species_code[!is.na(species_code)]),
     .groups = "drop"
@@ -211,12 +407,12 @@ bcsi_richness <- bcsi_main_noise %>%
 ))
 
 bcsi_individuals <- bcsi_main_noise %>%
-  group_by(recording_id, noise_level, noise_level_num, noise_pattern_num, species_code) %>%
+  group_by(location, recording_id, noise_level, noise_level_num, noise_pattern_num, species_code) %>%
   summarise(individuals = max(individual_order),
     .groups = "drop"
   ) |>
   mutate(individuals = case_when(is.na(individuals) ~ 0, TRUE ~ individuals)) |>
-  group_by(recording_id, noise_level, noise_level_num, noise_pattern_num) |>
+  group_by(location, recording_id, noise_level, noise_level_num, noise_pattern_num) |>
   summarise(n = sum(individuals)) |>
   ungroup() |>
   mutate(
@@ -254,41 +450,58 @@ ggplot(bcsi_individuals, aes(noise_level, n)) +
   ) +
   theme_minimal()
 
+ggplot(bcsi_individuals, aes(location, noise_level)) +
+  geom_boxplot() +
+  labs(
+    x = "Noise level",
+    y = "Individuals detected per recording",
+    title = "Individuals detected vs noise level"
+  ) +
+  theme_minimal()
 ```
+
+
+Contrary to expectations, distance to the nearest coastline showed no meaningful association with species richness across ARU monitoring locations (see @fig-ocean-richness). Species richness was highly variable at all distances, ranging from approximately 3–32 species regardless of coastal proximity, and the fitted regression line was nearly flat across the full range of distances sampled (0-2, 200 m). This suggests that, within PEINP, coastal noise does not appear to systematically suppress acoustic detectability or species richness at the distances represented by our monitoring network, though the majority of stations were clustered within 500 m of the coastline, limiting inference at greater distances.
 
 ```{r}
-#| echo: false
-#| eval: true
 #| warning: false
-#| message: false
+#| echo: false
+#| eval: false
 #| include: true
+#| fig-align: center
+#| fig-cap: Relationship between distance to coastline and species richness across ARU monitoring locations.
+#| label: fig-ocean-richness
 
-bcsi_seabirds <- wt_download_report(4069, 'ARU', c('main','ai'))
+ocean_richness <- spp_rich_location |>
+  inner_join(pei_locs |> select(location, coast_distance) |> distinct(), by = "location") |>
+  filter(!location %in% c("ASC-1"))
 
-eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
-wt_classifier_threshold(eval)
-wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
+ggplot(ocean_richness, aes(x = coast_distance, y = species_count)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "steelblue", linewidth = 0.8) +
+  labs(x = "Distance to Coastline (m)", y = "Species Richness") +
+  theme_bw(base_size = 12)
+
 ```
 
-## Data management, processing and quality control
+## Classifier results
 
-All recordings were uploaded to WildTrax in order for the data to be accessible and stored. 
+### Evaluation of HawkEars v1.0.8
 
-### Community data processing
-
-For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns.
-
-### Evaluating performance of HawkEars on Common Murre and Marbled Murrelet
+We showed that ... 
 
 ```{r}
 
 ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
-  geom_smooth()
+  geom_smooth() +
+  theme_bw() +
+  xlab("Classifier Recall") +
+  ylab("Classifier Precision") +
+  ylim(0,1)
 
 ```
 
-### Creating annotation datasets and new classifier implementation
+### HawkEars 2.0
 
-## Results
 
 ## Discussion and recommendations
