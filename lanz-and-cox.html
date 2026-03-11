@@ -10,7 +10,7 @@
 <meta name="author" content="Kevin Kelly">
 <meta name="author" content="Eric McLaren">
 <meta name="author" content="Iain Reid">
-<meta name="dcterms.date" content="2026-01-28">
+<meta name="dcterms.date" content="2026-03-11">
 
 <title>Report on the use of passive acoustic monitoring for songbirds and seabirds on Lanz and Cox Islands</title>
 <style>
@@ -25,7 +25,62 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="lanz-and-cox_files/libs/clipboard/clipboard.min.js"></script>
@@ -73,17 +128,26 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
   <li><a href="#data-collection" id="toc-data-collection" class="nav-link" data-scroll-target="#data-collection">Data collection</a></li>
-  <li><a href="#data-management-processing-and-quality-control" id="toc-data-management-processing-and-quality-control" class="nav-link" data-scroll-target="#data-management-processing-and-quality-control">Data management, processing and quality control</a>
-  <ul class="collapse">
+  <li><a href="#data-management-processing-and-quality-control" id="toc-data-management-processing-and-quality-control" class="nav-link" data-scroll-target="#data-management-processing-and-quality-control">Data management, processing and quality control</a></li>
   <li><a href="#community-data-processing" id="toc-community-data-processing" class="nav-link" data-scroll-target="#community-data-processing">Community data processing</a></li>
-  <li><a href="#evaluating-performance-of-hawkears-on-common-murre-and-marbled-murrelet" id="toc-evaluating-performance-of-hawkears-on-common-murre-and-marbled-murrelet" class="nav-link" data-scroll-target="#evaluating-performance-of-hawkears-on-common-murre-and-marbled-murrelet">Evaluating performance of HawkEars on Common Murre and Marbled Murrelet</a></li>
-  <li><a href="#creating-annotation-datasets-and-new-classifier-implementation" id="toc-creating-annotation-datasets-and-new-classifier-implementation" class="nav-link" data-scroll-target="#creating-annotation-datasets-and-new-classifier-implementation">Creating annotation datasets and new classifier implementation</a></li>
+  <li><a href="#evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds" id="toc-evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds" class="nav-link" data-scroll-target="#evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds">Evaluating the performance of HawkEars v1.0.8 on seabirds</a></li>
+  <li><a href="#hawkears-2.0" id="toc-hawkears-2.0" class="nav-link" data-scroll-target="#hawkears-2.0">HawkEars 2.0</a></li>
   </ul></li>
-  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
+  <ul class="collapse">
+  <li><a href="#species-richness-and-diversity" id="toc-species-richness-and-diversity" class="nav-link" data-scroll-target="#species-richness-and-diversity">Species richness and diversity</a>
+  <ul class="collapse">
+  <li><a href="#proximity-to-ocean-and-noise-effects" id="toc-proximity-to-ocean-and-noise-effects" class="nav-link" data-scroll-target="#proximity-to-ocean-and-noise-effects">Proximity to ocean and noise effects</a></li>
+  </ul></li>
+  <li><a href="#classifier-results" id="toc-classifier-results" class="nav-link" data-scroll-target="#classifier-results">Classifier results</a>
+  <ul class="collapse">
+  <li><a href="#evaluation-of-hawkears-v1.0.8" id="toc-evaluation-of-hawkears-v1.0.8" class="nav-link" data-scroll-target="#evaluation-of-hawkears-v1.0.8">Evaluation of HawkEars v1.0.8</a></li>
+  <li><a href="#hawkears-2.0-1" id="toc-hawkears-2.0-1" class="nav-link" data-scroll-target="#hawkears-2.0-1">HawkEars 2.0</a></li>
+  </ul></li>
   <li><a href="#discussion-and-recommendations" id="toc-discussion-and-recommendations" class="nav-link" data-scroll-target="#discussion-and-recommendations">Discussion and recommendations</a></li>
   </ul></li>
   </ul>
-</nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="lanz-and-cox.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
 </div>
@@ -139,7 +203,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 28, 2026</p>
+      <p class="date">March 11, 2026</p>
     </div>
   </div>
   
@@ -169,7 +233,7 @@ Note
 </div>
 <section id="abstract" class="level1">
 <h1>Abstract</h1>
-<p>Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities across multiple breeding seasons prior to invasive mink and raccoon eradication. Autonomous Recording Units (ARUs; SM4) were deployed at 0 locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a pre-eradication baseline to support evaluation of seabird prospecting activity and future changes in songbird communities following invasive predator removal.</p>
+<p>Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous Recording Units (ARUs; SM4) were deployed at 0 locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.</p>
 </section>
 <section id="land-acknowledgement" class="level1">
 <h1>Land Acknowledgement</h1>
@@ -182,12 +246,13 @@ Note
 <h1>Methods</h1>
 <section id="data-collection" class="level2">
 <h2 class="anchored" data-anchor-id="data-collection">Data collection</h2>
+<p>ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (<a href="#fig-aru-monitoring-locations" class="quarto-xref">Figure&nbsp;1</a>), with the final data retrievals taking place in the winter of 2025-26. A total of 129243 recordings were collected totalling 1.0736^{4} audio hours of data (<a href="#fig-bcsi-recs" class="quarto-xref">Figure&nbsp;2</a>).</p>
 <div class="cell" data-layout-align="center">
 <div id="fig-aru-monitoring-locations" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-aru-monitoring-locations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="leaflet html-widget html-fill-item" id="htmlwidget-b8ea471ea1f7ae7c383d" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-b8ea471ea1f7ae7c383d">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[50.8023,50.80143,50.78923,50.80359,50.79729,50.79253,50.81005,null,50.80575,50.79417,50.82893,50.81575,50.80633,50.82519,50.81814,50.81645,50.82627,null,50.81344,50.80638,50.82689],[-128.63595,-128.63379,-128.62543,-128.61671,-128.62028,-128.61714,-128.60684,null,-128.63792,-128.63103,-128.70695,-128.71137,-128.66096,-128.704,-128.70489,-128.70007,-128.68215,null,-128.66601,-128.65793,-128.7106],6,null,null,{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.5,"fill":true,"fillColor":"black","fillOpacity":1},null,null,["Location: DC01 <br>","Location: DC02 <br>","Location: DC03 <br>","Location: DC07 <br>","Location: DC09 <br>","Location: DC10 <br>","Location: DC11 <br>","Location: DC12 <br>","Location: DC13 <br>","Location: DC15 <br>","Location: DL01 <br>","Location: DL02 <br>","Location: DL05 <br>","Location: DL06 <br>","Location: DL07 <br>","Location: DL09 <br>","Location: DL10 <br>","Location: DL11 <br>","Location: DL12 <br>","Location: DL13 <br>","Location: DL15 <br>"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addMeasure","args":[{"position":"topright","primaryLengthUnit":"meters","primaryAreaUnit":"sqmeters","activeColor":"#ABE67E","completedColor":"#C8F2BE","popupOptions":{"className":"leaflet-measure-resultpopup","autoPanPadding":[10,10]},"captureZIndex":10000,"localization":"en","decPoint":".","thousandsSep":","}]},{"method":"addMiniMap","args":[null,null,"bottomleft",150,150,19,19,-5,false,false,false,false,false,false,{"color":"#ff7800","weight":1,"clickable":false},{"color":"#000000","weight":1,"clickable":false,"opacity":0,"fillOpacity":0},{"hideText":"Hide MiniMap","showText":"Show MiniMap"},[]]}],"limits":{"lat":[50.78923,50.82893],"lng":[-128.71137,-128.60684]}},"evals":[],"jsHooks":[]}</script>
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-5bf83b428a9a1889c287" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-5bf83b428a9a1889c287">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[50.8023,50.80143,50.78923,50.80157,50.80359,50.79729,50.79253,50.81005,50.80575,50.79417,50.82893,50.81575,50.80633,50.82519,50.81814,50.81645,50.82627,50.816522,50.81344,50.80638,50.82689],[-128.63595,-128.63379,-128.62543,-128.57345,-128.61671,-128.62028,-128.61714,-128.60684,-128.63792,-128.63103,-128.70695,-128.71137,-128.66096,-128.704,-128.70489,-128.70007,-128.68215,-128.669064,-128.66601,-128.65793,-128.7106],6,null,null,{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.5,"fill":true,"fillColor":"black","fillOpacity":1},null,null,["Location: DC01 <br>","Location: DC02 <br>","Location: DC03 <br>","Location: DC06 <br>","Location: DC07 <br>","Location: DC09 <br>","Location: DC10 <br>","Location: DC11 <br>","Location: DC13 <br>","Location: DC15 <br>","Location: DL01 <br>","Location: DL02 <br>","Location: DL05 <br>","Location: DL06 <br>","Location: DL07 <br>","Location: DL09 <br>","Location: DL10 <br>","Location: DL11 <br>","Location: DL12 <br>","Location: DL13 <br>","Location: DL15 <br>"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addMeasure","args":[{"position":"topright","primaryLengthUnit":"meters","primaryAreaUnit":"sqmeters","activeColor":"#ABE67E","completedColor":"#C8F2BE","popupOptions":{"className":"leaflet-measure-resultpopup","autoPanPadding":[10,10]},"captureZIndex":10000,"localization":"en","decPoint":".","thousandsSep":","}]},{"method":"addMiniMap","args":[null,null,"bottomleft",150,150,19,19,-5,false,false,false,false,false,false,{"color":"#ff7800","weight":1,"clickable":false},{"color":"#000000","weight":1,"clickable":false,"opacity":0,"fillOpacity":0},{"hideText":"Hide MiniMap","showText":"Show MiniMap"},[]]}],"limits":{"lat":[50.78923,50.82893],"lng":[-128.71137,-128.57345]}},"evals":[],"jsHooks":[]}</script>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aru-monitoring-locations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Locations from Lanz and Cox Provincial Park ARU Monitoring Program
@@ -196,39 +261,220 @@ Figure&nbsp;1: Locations from Lanz and Cox Provincial Park ARU Monitoring Progra
 </div>
 </div>
 <div class="cell">
+<div id="tbl-loc-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-loc-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Locations surveyed across years. Ones indicated a deployment in that year for that location
+</figcaption>
+<div aria-describedby="tbl-loc-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">location</th>
+<th style="text-align: right;">latitude</th>
+<th style="text-align: right;">longitude</th>
+<th style="text-align: right;">2024</th>
+<th style="text-align: right;">2025</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DC01</td>
+<td style="text-align: right;">50.80230</td>
+<td style="text-align: right;">-128.6360</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DC02</td>
+<td style="text-align: right;">50.80143</td>
+<td style="text-align: right;">-128.6338</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DC03</td>
+<td style="text-align: right;">50.78923</td>
+<td style="text-align: right;">-128.6254</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DC06</td>
+<td style="text-align: right;">50.80157</td>
+<td style="text-align: right;">-128.5735</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DC07</td>
+<td style="text-align: right;">50.80359</td>
+<td style="text-align: right;">-128.6167</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DC09</td>
+<td style="text-align: right;">50.79729</td>
+<td style="text-align: right;">-128.6203</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DC10</td>
+<td style="text-align: right;">50.79253</td>
+<td style="text-align: right;">-128.6171</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DC11</td>
+<td style="text-align: right;">50.81005</td>
+<td style="text-align: right;">-128.6068</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DC13</td>
+<td style="text-align: right;">50.80575</td>
+<td style="text-align: right;">-128.6379</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DC15</td>
+<td style="text-align: right;">50.79417</td>
+<td style="text-align: right;">-128.6310</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DL01</td>
+<td style="text-align: right;">50.82893</td>
+<td style="text-align: right;">-128.7070</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DL02</td>
+<td style="text-align: right;">50.81575</td>
+<td style="text-align: right;">-128.7114</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DL05</td>
+<td style="text-align: right;">50.80633</td>
+<td style="text-align: right;">-128.6610</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DL06</td>
+<td style="text-align: right;">50.82519</td>
+<td style="text-align: right;">-128.7040</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DL07</td>
+<td style="text-align: right;">50.81814</td>
+<td style="text-align: right;">-128.7049</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DL09</td>
+<td style="text-align: right;">50.81645</td>
+<td style="text-align: right;">-128.7001</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DL10</td>
+<td style="text-align: right;">50.82627</td>
+<td style="text-align: right;">-128.6822</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DL11</td>
+<td style="text-align: right;">50.81652</td>
+<td style="text-align: right;">-128.6691</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DL12</td>
+<td style="text-align: right;">50.81344</td>
+<td style="text-align: right;">-128.6660</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DL15</td>
+<td style="text-align: right;">50.82689</td>
+<td style="text-align: right;">-128.7106</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </figure>
 </div>
 </div>
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-bcsi-recs" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bcsi-recs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lanz-and-cox_files/figure-html/fig-bcsi-recs-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bcsi-recs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Recordings collected from Lanz and Cox Provincial Park ARU Monitoring Program
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
+</section>
+<section id="data-management-processing-and-quality-control" class="level2">
+<h2 class="anchored" data-anchor-id="data-management-processing-and-quality-control">Data management, processing and quality control</h2>
+<p>All recordings were uploaded to <a href="https://wildtrax.ca">WildTrax</a> in order for the data to be accessible and stored. Locations name were confirmed against the deployment information to ensure data from each location was consistently named across years.</p>
+</section>
+<section id="community-data-processing" class="level2">
+<h2 class="anchored" data-anchor-id="community-data-processing">Community data processing</h2>
+<p>For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns. Coastal proximity may reduce ARU detection effectiveness, as wave action and wind-driven noise can mask vocalizations and shrink effective detection distances (<span class="citation" data-cites="pijankowski2011landscape">Pijanowski et al. (<a href="#ref-pijankowski2011landscape" role="doc-biblioref">2011</a>)</span>). We therefore examined whether distance to the nearest coastline predicted observed species richness across monitoring locations. We also compared geophonic acoustic indices (<span class="citation" data-cites="towsey2017calculation">Towsey et al. (<a href="#ref-towsey2017calculation" role="doc-biblioref">2017</a>)</span>) against WildTrax noise metrics to establish thresholds for task exclusion and to characterize background noise conditions at each site.</p>
+</section>
+<section id="evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds">Evaluating the performance of HawkEars v1.0.8 on seabirds</h2>
+<p>To assess the accuracy of the HawkEars classifier for three focal species, Common Murre, Marbled Murrelet, and Black Oystercatcher, we extracted all recordings from WildTrax in which the classifier returned a detection score ≥ 0.5. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the <code>wt_evaluate_classifier()</code> and <code>wt_classifier_threshold()</code> functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species — balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 13 × 14
+<pre><code># A tibble: 2 × 2
+  classifier      threshold
+  &lt;chr&gt;               &lt;dbl&gt;
+1 Birdnet v2.1         0.53
+2 Hawkears v1.0.8      0.4 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 11 × 14
    location_id recording_id task_id species_common_name confidence organization
          &lt;int&gt;        &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;                    &lt;dbl&gt; &lt;chr&gt;       
- 1      557160      3334390 3364837 Marbled Murrelet         0.925 BCSI        
- 2      557160      3598578 3364852 Marbled Murrelet         0.851 BCSI        
- 3      557160      3598698 3364855 Marbled Murrelet         0.967 BCSI        
- 4      557160      3599148 3364859 Marbled Murrelet         0.88  BCSI        
- 5      557160      3599850 3364866 Marbled Murrelet         0.802 BCSI        
- 6      557160      3601232 3364878 Marbled Murrelet         0.876 BCSI        
- 7      557957      3606988 3364880 Marbled Murrelet         0.921 BCSI        
- 8      557957      3609580 3364898 Common Murre             0.939 BCSI        
- 9      557959      3617005 3364920 Marbled Murrelet         0.816 BCSI        
-10      557959      3617842 3364926 Marbled Murrelet         0.884 BCSI        
-11      557959      3617979 3364931 Marbled Murrelet         0.822 BCSI        
-12      557979      3611414 3364908 Marbled Murrelet         0.912 BCSI        
-13      557979      3612564 3364913 Marbled Murrelet         0.813 BCSI        
+ 1      557160      3599850 3364866 Marbled Murrelet         0.802 BCSI        
+ 2      557160      3601274 3364879 Black Oystercatcher      0.819 BCSI        
+ 3      557160      3644085 3369077 Common Murre             0.806 BCSI        
+ 4      557160      3644739 3369083 Marbled Murrelet         0.803 BCSI        
+ 5      557160      3646079 3369094 Marbled Murrelet         0.878 BCSI        
+ 6      557957      3609580 3364898 Common Murre             0.939 BCSI        
+ 7      557959      3617005 3364920 Marbled Murrelet         0.816 BCSI        
+ 8      557959      3617842 3364926 Marbled Murrelet         0.884 BCSI        
+ 9      557976      3380203 3364840 Black Oystercatcher      0.988 BCSI        
+10      557976      3528851 3364841 Black Oystercatcher      0.935 BCSI        
+11      557979      3612564 3364913 Marbled Murrelet         0.813 BCSI        
 # ℹ 8 more variables: version &lt;chr&gt;, location &lt;chr&gt;,
 #   recording_date_time &lt;dttm&gt;, recording_length &lt;dbl&gt;, scientific_name &lt;chr&gt;,
 #   species_code &lt;chr&gt;, ai_detection_time &lt;dbl&gt;,
@@ -236,29 +482,134 @@ Figure&nbsp;1: Locations from Lanz and Cox Provincial Park ARU Monitoring Progra
 </div>
 </div>
 </section>
-<section id="data-management-processing-and-quality-control" class="level2">
-<h2 class="anchored" data-anchor-id="data-management-processing-and-quality-control">Data management, processing and quality control</h2>
-<p>All recordings were uploaded to WildTrax in order for the data to be accessible and stored.</p>
-<section id="community-data-processing" class="level3">
-<h3 class="anchored" data-anchor-id="community-data-processing">Community data processing</h3>
-<p>For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns.</p>
-</section>
-<section id="evaluating-performance-of-hawkears-on-common-murre-and-marbled-murrelet" class="level3">
-<h3 class="anchored" data-anchor-id="evaluating-performance-of-hawkears-on-common-murre-and-marbled-murrelet">Evaluating performance of HawkEars on Common Murre and Marbled Murrelet</h3>
-</section>
-<section id="creating-annotation-datasets-and-new-classifier-implementation" class="level3">
-<h3 class="anchored" data-anchor-id="creating-annotation-datasets-and-new-classifier-implementation">Creating annotation datasets and new classifier implementation</h3>
+<section id="hawkears-2.0" class="level2">
+<h2 class="anchored" data-anchor-id="hawkears-2.0">HawkEars 2.0</h2>
+<p>Insert HawkEars 2.0 here.</p>
 </section>
 </section>
-<section id="results" class="level2">
-<h2 class="anchored" data-anchor-id="results">Results</h2>
+<section id="results" class="level1">
+<h1>Results</h1>
+<section id="species-richness-and-diversity" class="level2">
+<h2 class="anchored" data-anchor-id="species-richness-and-diversity">Species richness and diversity</h2>
+<p>A total of 36 species were found. <a href="#fig-spp-rich-locs" class="quarto-xref">Figure&nbsp;3</a> describes the relationship of species richness for each location across the two years of surveys. Shannon’s diversity was also calculated (see <a href="#fig-shannon" class="quarto-xref">Figure&nbsp;4</a>).</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-spp-rich-locs" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-spp-rich-locs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lanz-and-cox_files/figure-html/fig-spp-rich-locs-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spp-rich-locs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Species richness at forest monitoring locations across years
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center" data-cap-location="bottom">
+<div class="cell-output-display">
+<div id="fig-shannon" class="quarto-float quarto-figure quarto-figure-center anchored" data-cap-location="bottom" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-shannon-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lanz-and-cox_files/figure-html/fig-shannon-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-shannon-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Shannon diversity index over years
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-spp-activity" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-spp-activity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lanz-and-cox_files/figure-html/fig-spp-activity-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spp-activity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Seasonal detection activity of most commonly detected forest species
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="proximity-to-ocean-and-noise-effects" class="level3">
+<h3 class="anchored" data-anchor-id="proximity-to-ocean-and-noise-effects">Proximity to ocean and noise effects</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Contrary to expectations, distance to the nearest coastline showed no meaningful association with species richness across ARU monitoring locations (see <strong>?@fig-ocean-richness</strong>). Species richness was highly variable at all distances, ranging from approximately 3–32 species regardless of coastal proximity, and the fitted regression line was nearly flat across the full range of distances sampled (0-2, 200 m). This suggests that, within PEINP, coastal noise does not appear to systematically suppress acoustic detectability or species richness at the distances represented by our monitoring network, though the majority of stations were clustered within 500 m of the coastline, limiting inference at greater distances.</p>
 </section>
-<section id="discussion-and-recommendations" class="level2">
-<h2 class="anchored" data-anchor-id="discussion-and-recommendations">Discussion and recommendations</h2>
+</section>
+<section id="classifier-results" class="level2">
+<h2 class="anchored" data-anchor-id="classifier-results">Classifier results</h2>
+<section id="evaluation-of-hawkears-v1.0.8" class="level3">
+<h3 class="anchored" data-anchor-id="evaluation-of-hawkears-v1.0.8">Evaluation of HawkEars v1.0.8</h3>
+<p>We showed that …</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(eval, <span class="fu">aes</span>(<span class="at">x=</span>recall, <span class="at">y=</span>precision, <span class="at">colour=</span>classifier)) <span class="sc">+</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>() <span class="sc">+</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Classifier Recall"</span>) <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Classifier Precision"</span>) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using method = 'loess' and formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="hawkears-2.0-1" class="level3">
+<h3 class="anchored" data-anchor-id="hawkears-2.0-1">HawkEars 2.0</h3>
+</section>
+</section>
+<section id="discussion-and-recommendations" class="level2 unnumbered">
+
+
 </section>
 </section>
 
-</main>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Discussion and recommendations</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-oksanen2010canonical" class="csl-entry" role="listitem">
+Oksanen, Jari, Frank G Blanchet, Roeland Kindt, Pierre Legendre, Peter R Minchin, Robert B O’Hara, Gavin L Simpson, et al. 2010. <span>“Canonical Analysis of Principal Coordinates: A Useful Method of Constrained Ordination for Ecology.”</span> <em>Ecology</em> 92 (3): 597–611. <a href="https://doi.org/10.1890/10-0340.1">https://doi.org/10.1890/10-0340.1</a>.
+</div>
+<div id="ref-pijankowski2011landscape" class="csl-entry" role="listitem">
+Pijanowski, Bryan C., Luis J. Villanueva-Rivera, Sarah L. Dumyahn, Almo Farina, Bernie L. Krause, Brian M. Napoletano, Stuart H. Gage, and Nadia Pieretti. 2011. <span>“Soundscape Ecology: The Science of Sound in the Landscape.”</span> <em>BioScience</em> 61 (3): 203–16. <a href="https://doi.org/10.1525/bio.2011.61.3.6">https://doi.org/10.1525/bio.2011.61.3.6</a>.
+</div>
+<div id="ref-shannon1948mathematical" class="csl-entry" role="listitem">
+Shannon, Claude Elwood. 1948. <span>“A Mathematical Theory of Communication.”</span> <em>The Bell System Technical Journal</em> 27 (3): 379–423.
+</div>
+<div id="ref-towsey2017calculation" class="csl-entry" role="listitem">
+Towsey, Michael W et al. 2017. <span>“The Calculation of Acoustic Indices Derived from Long-Duration Recordings of the Natural Environment.”</span>
+</div>
+</div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
