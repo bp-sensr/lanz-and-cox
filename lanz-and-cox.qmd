@@ -36,6 +36,8 @@ styles: styles.css
 github: https://github.com/biodiversitypathways/lanz-and-cox
 ---
 
+![](assets/lanz-and-cox-google.png){style="float:left`;" fig-alt="Lanz and Cox Islands (c) Google" fig-align="center"}
+
 ```{r}
 #| label: Load packages and authenticate to WildTrax
 #| include: false
@@ -80,19 +82,21 @@ This report is dynamically generated, meaning its results may evolve with the ad
 
 # Abstract
 
-Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous Recording Units (ARUs; SM4) were deployed at `r length(unique(bcsi$location))` locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
+Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous recording units (ARUs) were deployed at `r length(unique(bcsi_locs$location))` locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
 
 # Land Acknowledgement
 
+
+
 # Introduction
 
-Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators, including mink and raccoon. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition prior to eradication activities. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax data management platform in combination with BirdNET and HawkEars machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline against which post-eradication monitoring can be compared to assess project outcomes and ecological recovery.
+Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators, including mink and raccoon. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition prior to eradication activities. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax () data management platform in combination with BirdNET (@kahl2021birdnet) and HawkEars (@huus2025hawkears) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline against which post-eradication monitoring can be compared to assess project outcomes and ecological recovery.
 
 # Methods
 
 ## Data collection
 
-ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600))` audio hours of data (@fig-bcsi-recs). 
+ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. Recordings were collected on a schedule of ... A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data (@fig-bcsi-recs). 
 
 ```{r}
 #| echo: false
@@ -217,8 +221,7 @@ Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_
 bcsi_seabirds <- wt_download_report(4069, 'ARU', c('main','ai'))
 
 eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
-wt_classifier_threshold(eval)
-wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
+# wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
 ## HawkEars 2.0
@@ -461,8 +464,6 @@ ggplot(bcsi_individuals, aes(location, noise_level)) +
 ```
 
 
-Contrary to expectations, distance to the nearest coastline showed no meaningful association with species richness across ARU monitoring locations (see @fig-ocean-richness). Species richness was highly variable at all distances, ranging from approximately 3–32 species regardless of coastal proximity, and the fitted regression line was nearly flat across the full range of distances sampled (0-2, 200 m). This suggests that, within PEINP, coastal noise does not appear to systematically suppress acoustic detectability or species richness at the distances represented by our monitoring network, though the majority of stations were clustered within 500 m of the coastline, limiting inference at greater distances.
-
 ```{r}
 #| warning: false
 #| echo: false
@@ -491,6 +492,8 @@ ggplot(ocean_richness, aes(x = coast_distance, y = species_count)) +
 We showed that ... 
 
 ```{r}
+
+wt_classifier_threshold(eval)
 
 ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
   geom_smooth() +
