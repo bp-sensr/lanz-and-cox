@@ -10,7 +10,7 @@
 <meta name="author" content="Kevin Kelly">
 <meta name="author" content="Eric McLaren">
 <meta name="author" content="Iain Reid">
-<meta name="dcterms.date" content="2026-03-11">
+<meta name="dcterms.date" content="2026-03-12">
 
 <title>Report on the use of passive acoustic monitoring for songbirds and seabirds on Lanz and Cox Islands</title>
 <style>
@@ -130,8 +130,7 @@ div.csl-indent {
   <li><a href="#data-collection" id="toc-data-collection" class="nav-link" data-scroll-target="#data-collection">Data collection</a></li>
   <li><a href="#data-management-processing-and-quality-control" id="toc-data-management-processing-and-quality-control" class="nav-link" data-scroll-target="#data-management-processing-and-quality-control">Data management, processing and quality control</a></li>
   <li><a href="#community-data-processing" id="toc-community-data-processing" class="nav-link" data-scroll-target="#community-data-processing">Community data processing</a></li>
-  <li><a href="#evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds" id="toc-evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds" class="nav-link" data-scroll-target="#evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds">Evaluating the performance of HawkEars v1.0.8 on seabirds</a></li>
-  <li><a href="#hawkears-2.0" id="toc-hawkears-2.0" class="nav-link" data-scroll-target="#hawkears-2.0">HawkEars 2.0</a></li>
+  <li><a href="#use-of-automated-classifiers-on-seabirds" id="toc-use-of-automated-classifiers-on-seabirds" class="nav-link" data-scroll-target="#use-of-automated-classifiers-on-seabirds">Use of automated classifiers on seabirds</a></li>
   </ul></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
   <ul class="collapse">
@@ -142,7 +141,7 @@ div.csl-indent {
   <li><a href="#classifier-results" id="toc-classifier-results" class="nav-link" data-scroll-target="#classifier-results">Classifier results</a>
   <ul class="collapse">
   <li><a href="#evaluation-of-hawkears-v1.0.8" id="toc-evaluation-of-hawkears-v1.0.8" class="nav-link" data-scroll-target="#evaluation-of-hawkears-v1.0.8">Evaluation of HawkEars v1.0.8</a></li>
-  <li><a href="#hawkears-2.0-1" id="toc-hawkears-2.0-1" class="nav-link" data-scroll-target="#hawkears-2.0-1">HawkEars 2.0</a></li>
+  <li><a href="#hawkears-2.0" id="toc-hawkears-2.0" class="nav-link" data-scroll-target="#hawkears-2.0">HawkEars 2.0</a></li>
   </ul></li>
   <li><a href="#discussion-and-recommendations" id="toc-discussion-and-recommendations" class="nav-link" data-scroll-target="#discussion-and-recommendations">Discussion and recommendations</a></li>
   </ul></li>
@@ -203,7 +202,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 11, 2026</p>
+      <p class="date">March 12, 2026</p>
     </div>
   </div>
   
@@ -245,13 +244,13 @@ Note
 </section>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators, including mink and raccoon. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition prior to eradication activities. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax () data management platform in combination with BirdNET (<span class="citation" data-cites="kahl2021birdnet">Kahl et al. (<a href="#ref-kahl2021birdnet" role="doc-biblioref">2021</a>)</span>) and HawkEars (<span class="citation" data-cites="huus2025hawkears">Huus et al. (<a href="#ref-huus2025hawkears" role="doc-biblioref">2025</a>)</span>) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline against which post-eradication monitoring can be compared to assess project outcomes and ecological recovery.</p>
+<p>Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators, including mink and raccoon. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition prior to eradication activities. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax (<span class="citation" data-cites="macphail2026wildtrax">MacPhail et al. (<a href="#ref-macphail2026wildtrax" role="doc-biblioref">2026</a>)</span>) data management platform in combination with BirdNET (<span class="citation" data-cites="kahl2021birdnet">Kahl et al. (<a href="#ref-kahl2021birdnet" role="doc-biblioref">2021</a>)</span>) and HawkEars (<span class="citation" data-cites="huus2025hawkears">Huus et al. (<a href="#ref-huus2025hawkears" role="doc-biblioref">2025</a>)</span>) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline against which post-eradication monitoring can be compared to assess project outcomes and ecological recovery.</p>
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
 <section id="data-collection" class="level2">
 <h2 class="anchored" data-anchor-id="data-collection">Data collection</h2>
-<p>ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (<a href="#fig-aru-monitoring-locations" class="quarto-xref">Figure&nbsp;1</a>), with the final data retrievals taking place in the winter of 2025-26. Recordings were collected on a schedule of … A total of 129243 recordings were collected totalling 10,736 audio hours of data (<a href="#fig-bcsi-recs" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<p>ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (<a href="#fig-aru-monitoring-locations" class="quarto-xref">Figure&nbsp;1</a>), with the final data retrievals taking place in the winter of 2025-26. Sites were accessed via helicopter. Recordings were collected on a schedule of recording every five minutes every 15 minutes at 24000 Hz. A total of 129243 recordings were collected totalling 10,736 audio hours of data (<a href="#fig-bcsi-recs" class="quarto-xref">Figure&nbsp;2</a>).</p>
 <div class="cell" data-layout-align="center">
 <div id="fig-aru-monitoring-locations" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
@@ -454,20 +453,26 @@ Figure&nbsp;2: Recordings collected from Lanz and Cox Provincial Park ARU Monito
 <h2 class="anchored" data-anchor-id="community-data-processing">Community data processing</h2>
 <p>For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns. Coastal proximity may reduce ARU detection effectiveness, as wave action and wind-driven noise can mask vocalizations and shrink effective detection distances (<span class="citation" data-cites="pijankowski2011landscape">Pijanowski et al. (<a href="#ref-pijankowski2011landscape" role="doc-biblioref">2011</a>)</span>). We therefore examined whether distance to the nearest coastline predicted observed species richness across monitoring locations. We also compared geophonic acoustic indices (<span class="citation" data-cites="towsey2017calculation">Towsey et al. (<a href="#ref-towsey2017calculation" role="doc-biblioref">2017</a>)</span>) against WildTrax noise metrics to establish thresholds for task exclusion and to characterize background noise conditions at each site.</p>
 </section>
-<section id="evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds" class="level2">
-<h2 class="anchored" data-anchor-id="evaluating-the-performance-of-hawkears-v1.0.8-on-seabirds">Evaluating the performance of HawkEars v1.0.8 on seabirds</h2>
-<p>To assess the accuracy of the HawkEars classifier for three focal species, Common Murre, Marbled Murrelet, and Black Oystercatcher, we extracted all recordings from WildTrax in which the classifier returned a detection score ≥ 0.5. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the <code>wt_evaluate_classifier()</code> and <code>wt_classifier_threshold()</code> functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species — balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.</p>
-</section>
-<section id="hawkears-2.0" class="level2">
-<h2 class="anchored" data-anchor-id="hawkears-2.0">HawkEars 2.0</h2>
-<p>Insert HawkEars 2.0 here.</p>
+<section id="use-of-automated-classifiers-on-seabirds" class="level2">
+<h2 class="anchored" data-anchor-id="use-of-automated-classifiers-on-seabirds">Use of automated classifiers on seabirds</h2>
+<p>We first wanted to assess the accuracy of the current version of the HawkEars classifier for three focal species in the group: Common Murre, Marbled Murrelet, and Black Oystercatcher. We extracted all recordings from WildTrax in which the classifier detected these species with a mean score of ~0.33 used. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the <code>wt_evaluate_classifier()</code> and <code>wt_classifier_threshold()</code> functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Next we continued to intensify our evaluation of classifiers by using HawkEars 2.0 here.</p>
 </section>
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
 <section id="species-richness-and-diversity" class="level2">
 <h2 class="anchored" data-anchor-id="species-richness-and-diversity">Species richness and diversity</h2>
-<p>A total of 36 species were found. <a href="#fig-spp-rich-locs" class="quarto-xref">Figure&nbsp;3</a> describes the relationship of species richness for each location across the two years of surveys. Shannon’s diversity was also calculated (see <a href="#fig-shannon" class="quarto-xref">Figure&nbsp;4</a>).</p>
+<p>A total of 37 species were found. <a href="#fig-spp-rich-locs" class="quarto-xref">Figure&nbsp;3</a> describes the relationship of species richness for each location across the two years of surveys. Shannon’s diversity was also calculated (see <a href="#fig-shannon" class="quarto-xref">Figure&nbsp;4</a>).</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div id="fig-spp-rich-locs" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
@@ -504,7 +509,7 @@ Figure&nbsp;4: Shannon diversity index over years
 <img src="lanz-and-cox_files/figure-html/fig-spp-activity-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-spp-activity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;5: Seasonal detection activity of most commonly detected forest species
+Figure&nbsp;5: Seasonal detection activity of most commonly detected (n &gt; 3) forest species
 </figcaption>
 </figure>
 </div>
@@ -512,25 +517,30 @@ Figure&nbsp;5: Seasonal detection activity of most commonly detected forest spec
 </div>
 <section id="proximity-to-ocean-and-noise-effects" class="level3">
 <h3 class="anchored" data-anchor-id="proximity-to-ocean-and-noise-effects">Proximity to ocean and noise effects</h3>
-<div class="cell">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-ind-noise" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ind-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lanz-and-cox_files/figure-html/fig-ind-noise-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ind-noise-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Individuals detected versus environmental noise
+</figcaption>
 </figure>
 </div>
 </div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid figure-img" width="672"></p>
-</figure>
 </div>
-</div>
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid figure-img" width="672"></p>
+<div id="fig-noise-loc" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-noise-loc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lanz-and-cox_files/figure-html/fig-noise-loc-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-noise-loc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Noise per location on Scott Islands
+</figcaption>
 </figure>
 </div>
 </div>
@@ -541,7 +551,7 @@ Figure&nbsp;5: Seasonal detection activity of most commonly detected forest spec
 <h2 class="anchored" data-anchor-id="classifier-results">Classifier results</h2>
 <section id="evaluation-of-hawkears-v1.0.8" class="level3">
 <h3 class="anchored" data-anchor-id="evaluation-of-hawkears-v1.0.8">Evaluation of HawkEars v1.0.8</h3>
-<p>We showed that …</p>
+<p>Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching ~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wt_classifier_threshold</span>(eval)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -563,14 +573,14 @@ Figure&nbsp;5: Seasonal detection activity of most commonly detected forest spec
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="hawkears-2.0-1" class="level3">
-<h3 class="anchored" data-anchor-id="hawkears-2.0-1">HawkEars 2.0</h3>
+<section id="hawkears-2.0" class="level3">
+<h3 class="anchored" data-anchor-id="hawkears-2.0">HawkEars 2.0</h3>
 </section>
 </section>
 <section id="discussion-and-recommendations" class="level2 unnumbered">
@@ -585,6 +595,9 @@ Huus, Jan, Kevin G Kelly, Erin M Bayne, and Elly C Knight. 2025. <span>“HawkEa
 </div>
 <div id="ref-kahl2021birdnet" class="csl-entry" role="listitem">
 Kahl, Stefan, Connor M Wood, Maximilian Eibl, and Holger Klinck. 2021. <span>“BirdNET: A Deep Learning Solution for Avian Diversity Monitoring.”</span> <em>Ecological Informatics</em> 61: 101236.
+</div>
+<div id="ref-macphail2026wildtrax" class="csl-entry" role="listitem">
+MacPhail, Alexander G., Corrina Copp, Erin Bayne, Charles Francis, Michael Packer, Chad Klassen, Kevin Kelly, et al. 2026. <span>“<span>WildTrax</span>: A Platform for the Management, Storage, Processing, Sharing and Discovery of Avian Data.”</span>
 </div>
 <div id="ref-oksanen2010canonical" class="csl-entry" role="listitem">
 Oksanen, Jari, Frank G Blanchet, Roeland Kindt, Pierre Legendre, Peter R Minchin, Robert B O’Hara, Gavin L Simpson, et al. 2010. <span>“Canonical Analysis of Principal Coordinates: A Useful Method of Constrained Ordination for Ecology.”</span> <em>Ecology</em> 92 (3): 597–611. <a href="https://doi.org/10.1890/10-0340.1">https://doi.org/10.1890/10-0340.1</a>.
