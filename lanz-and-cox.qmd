@@ -90,13 +90,13 @@ Passive acoustic monitoring was conducted on Lanz and Cox Islands to characteriz
 
 # Introduction
 
-Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators, including mink and raccoon. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition prior to eradication activities. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax () data management platform in combination with BirdNET (@kahl2021birdnet) and HawkEars (@huus2025hawkears) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline against which post-eradication monitoring can be compared to assess project outcomes and ecological recovery.
+Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators, including mink and raccoon. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition prior to eradication activities. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax (@macphail2026wildtrax) data management platform in combination with BirdNET (@kahl2021birdnet) and HawkEars (@huus2025hawkears) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline against which post-eradication monitoring can be compared to assess project outcomes and ecological recovery.
 
 # Methods
 
 ## Data collection
 
-ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. Recordings were collected on a schedule of ... A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data (@fig-bcsi-recs). 
+ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. Sites were accessed via helicopter. Recordings were collected on a schedule of recording every five minutes every 15 minutes at 24000 Hz. A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data  (@fig-bcsi-recs).
 
 ```{r}
 #| echo: false
@@ -206,10 +206,9 @@ All recordings were uploaded to [WildTrax](https://wildtrax.ca) in order for the
 
 For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns. Coastal proximity may reduce ARU detection effectiveness, as wave action and wind-driven noise can mask vocalizations and shrink effective detection distances (@pijankowski2011landscape). We therefore examined whether distance to the nearest coastline predicted observed species richness across monitoring locations. We also compared geophonic acoustic indices (@towsey2017calculation) against WildTrax noise metrics to establish thresholds for task exclusion and to characterize background noise conditions at each site.
 
-## Evaluating the performance of HawkEars v1.0.8 on seabirds
+## Use of automated classifiers on seabirds
 
-To assess the accuracy of the HawkEars classifier for three focal species, Common Murre, Marbled Murrelet, and Black Oystercatcher, we extracted all recordings from WildTrax in which the classifier returned a detection score ≥ 0.5. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified.
-Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species — balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.
+We first wanted to assess the accuracy of the current version of the HawkEars classifier for three focal species in the group: Common Murre, Marbled Murrelet, and Black Oystercatcher. We extracted all recordings from WildTrax in which the classifier detected these species with a mean score of ~0.33 used. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.
 
 ```{r}
 #| echo: false
@@ -218,15 +217,21 @@ Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_
 #| message: false
 #| include: true
 
-bcsi_seabirds <- wt_download_report(4069, 'ARU', c('main','ai'))
+bcsi_seabirds <- wt_download_report(c(4069,4021), 'ARU', c('main','ai'))
+
+bcsi_seabirds[[1]] |> 
+  filter(species_common_name %in% seabirds) |> 
+  ggplot(aes(x = confidence)) + 
+  geom_density() + 
+  theme_bw() + 
+  ylab("Density") + 
+  xlab("HawkEars Score")
 
 eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
 # wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
-## HawkEars 2.0
-
-Insert HawkEars 2.0 here.
+Next we continued to intensify our evaluation of classifiers by using HawkEars 2.0 here.
 
 # Results
 
@@ -331,7 +336,7 @@ bcsi_main |>
 #| include: true
 #| results: hide
 #| fig-align: center
-#| fig-cap: Seasonal detection activity of most commonly detected forest species
+#| fig-cap: Seasonal detection activity of most commonly detected (n > 3) forest species
 #| label: fig-spp-activity
 
 bcsi_main |>
@@ -339,17 +344,18 @@ bcsi_main |>
   filter(!species_code == "NONE") |>
   select(location, recording_date_time, species_common_name, species_code, abundance) |>
   mutate(julian = lubridate::yday(recording_date_time),
-         month= month(recording_date_time),
+         month = month(recording_date_time),
          year = factor(year(recording_date_time))) |>
   arrange(species_code) |>
   group_by(species_code) |>
   add_tally() |>
   ungroup() |>
   filter(!n<3) |>
-  ggplot(aes(x = julian, y = species_common_name)) + 
-  geom_density_ridges(scale = 3, rel_min_height = 0.005, alpha = 0.4) + 
+  ggplot(aes(x = month, y = species_common_name)) + 
+  geom_density_ridges(alpha = 0.4, scale = 4) + 
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
   theme_bw() +
-  xlab("Day of Year") + 
+  xlab("Month") + 
   ylab("Species")
 
 ```
@@ -377,54 +383,47 @@ noise_pattern_map <- c(
   "Constant"     = 4
 )
 
-bcsi_noise <- bcsi[[3]] |>
-  separate_rows(task_noise, sep = "\\+") |>
-  separate(
-    task_noise,
-    into = c("noise_source", "noise_level", "noise_pattern"),
-    sep = "/",
-    fill = "right"
+bcsi_noise_ind <- bcsi_main |>
+  separate_rows(max_noise_volume, sep = ",") |>
+  mutate(
+    max_noise_volume = str_trim(max_noise_volume),
+    max_noise_volume = factor(max_noise_volume, 
+                              levels = c("Low", "Medium", "High", "Extreme"))
   ) |>
-  select(task_id, noise_source, noise_level, noise_pattern) |>
-  distinct() |>
-  filter(noise_source == "Ocean") |>
+  group_by(location, recording_date_time, max_noise_volume) |>
+  summarise(n = sum(!is.na(individual_order)), .groups = "drop") |>
   drop_na() |>
-  mutate(
-    noise_level_num   = unname(noise_level_map[noise_level]),
-    noise_pattern_num = unname(noise_pattern_map[noise_pattern])
-  ) 
+  ggplot(aes(max_noise_volume, n, fill = max_noise_volume)) +
+  geom_boxplot() +
+  labs(
+    x = "Noise level",
+    y = "Individuals detected per recording"
+  ) +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "turbo")
 
-bcsi_main_noise <- bcsi_main |>
-  inner_join(bcsi_noise, by = "task_id")
-  
-bcsi_richness <- bcsi_main_noise %>%
-  group_by(location, recording_id, noise_level, noise_level_num, noise_pattern_num) %>%
-  summarise(
-    richness = n_distinct(species_code[!is.na(species_code)]),
-    .groups = "drop"
-  ) |>
-  mutate(noise_level = factor(
-  noise_level,
-  levels = c("Low", "Medium", "High", "Extreme"),
-  ordered = TRUE
-))
-
-bcsi_individuals <- bcsi_main_noise %>%
-  group_by(location, recording_id, noise_level, noise_level_num, noise_pattern_num, species_code) %>%
-  summarise(individuals = max(individual_order),
-    .groups = "drop"
-  ) |>
-  mutate(individuals = case_when(is.na(individuals) ~ 0, TRUE ~ individuals)) |>
-  group_by(location, recording_id, noise_level, noise_level_num, noise_pattern_num) |>
-  summarise(n = sum(individuals)) |>
-  ungroup() |>
-  mutate(
-    noise_level = factor(
-      noise_level,
-      levels = c("Low", "Medium", "High", "Extreme"),
-      ordered = TRUE
-    )
-  )
+noise_per_loc <- bcsi_main |>
+  separate_rows(max_noise_volume, sep = ",") |>
+  mutate(max_noise_volume = str_trim(max_noise_volume),
+         noise_score = case_when(max_noise_volume == "Low" ~ 1, max_noise_volume == "Medium" ~ 2, max_noise_volume == "High" ~ 3, max_noise_volume == "Extreme" ~ 4)) |>
+  drop_na(noise_score) |>
+  select(location, recording_date_time, noise_score) |>
+  distinct() |>
+  group_by(location) |>
+  summarise(median_noise = median(noise_score),
+            q25 = quantile(noise_score, 0.25),
+            q75 = quantile(noise_score, 0.75)) |>
+  mutate(location = fct_reorder(location, median_noise)) |>
+  ggplot(aes(x = median_noise, y = location)) +
+  geom_linerange(aes(xmin = q25, xmax = q75), linewidth = 1, colour = "grey60") +
+  geom_point(aes(colour = median_noise), size = 4) +
+  scale_x_continuous(breaks = 1:4, labels = c("Low", "Medium", "High", "Extreme")) +
+  scale_colour_viridis_c(option = "turbo", guide = "none") +
+  labs(
+    x = "Noise level",
+    y = "Location"
+  ) +
+  theme_minimal()
 
 ```
 
@@ -434,33 +433,24 @@ bcsi_individuals <- bcsi_main_noise %>%
 #| warning: false
 #| message: false
 #| include: true
+#| fig-align: center
+#| fig-cap: Individuals detected versus environmental noise
+#| label: fig-ind-noise
 
-ggplot(bcsi_richness, aes(factor(noise_level), richness)) +
-  geom_boxplot() +
-  labs(
-    x = "Noise level (ordinal)",
-    y = "Species richness per recording",
-    title = "Species richness vs noise level"
-  ) +
-  theme_minimal()
+bcsi_noise_ind
+```
 
-ggplot(bcsi_individuals, aes(noise_level, n)) +
-  geom_boxplot() +
-  labs(
-    x = "Noise level",
-    y = "Individuals detected per recording",
-    title = "Individuals detected vs noise level"
-  ) +
-  theme_minimal()
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Noise per location on Scott Islands
+#| label: fig-noise-loc
 
-ggplot(bcsi_individuals, aes(location, noise_level)) +
-  geom_boxplot() +
-  labs(
-    x = "Noise level",
-    y = "Individuals detected per recording",
-    title = "Individuals detected vs noise level"
-  ) +
-  theme_minimal()
+noise_per_loc
 ```
 
 
@@ -489,7 +479,7 @@ ggplot(ocean_richness, aes(x = coast_distance, y = species_count)) +
 
 ### Evaluation of HawkEars v1.0.8
 
-We showed that ... 
+Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching ~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
 
 ```{r}
 
