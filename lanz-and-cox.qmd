@@ -86,8 +86,6 @@ Passive acoustic monitoring was conducted on Lanz and Cox Islands to characteriz
 
 # Land Acknowledgement
 
-
-
 # Introduction
 
 Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax (@macphail2026wildtrax) data management platform in combination with BirdNET (@kahl2021birdnet) and HawkEars (@huus2025hawkears) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline for monitoring that can be compared to assess other project outcomes and ecological recovery.
@@ -96,7 +94,7 @@ Lanz and Cox Islands support important seabird and songbird habitats, yet popula
 
 ## Data collection
 
-ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. Sites were accessed via helicopter. Recordings were collected on a schedule of recording every five minutes every 15 minutes at 24000 Hz. A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data  (@fig-bcsi-recs).
+ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. Sites were accessed via helicopter. Recordings were collected on a schedule of recording every five minutes every 15 minutes at 24000 Hz. A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data (@fig-bcsi-recs).
 
 ```{r}
 #| echo: false
@@ -208,7 +206,7 @@ For each sampling location and year, a total of nine autonomous recording unit (
 
 ## Use of automated classifiers on seabirds
 
-We first wanted to assess the accuracy of the current version of the HawkEars classifier for three focal species in the group: Common Murre, Marbled Murrelet, and Black Oystercatcher. We extracted all recordings from WildTrax in which the classifier detected these species with a mean score of ~0.33 used. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.
+We first wanted to assess the accuracy of the current version of the HawkEars classifier for three focal species in the group: Common Murre, Marbled Murrelet, and Black Oystercatcher. We extracted all recordings from WildTrax in which the classifier detected these species with a mean score of \~0.33 used. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.
 
 ```{r}
 #| echo: false
@@ -237,7 +235,28 @@ Next we continued to intensify our evaluation of classifiers by using HawkEars 2
 
 ## Species richness and diversity
 
-A total of `r nrow(distinct_spp)` species were found. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon).
+A total of `r nrow(distinct_spp)` species were found with a summary of detections found at @tbl-spp-summary. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon).
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| label: tbl-spp-summary
+#| collapse: true
+#| code-fold: true
+#| tbl-cap: Count of detections per species
+
+kable(bcsi_main |>
+        wt_tidy_species(remove = c("unknown")) |>
+  group_by(species_common_name) |>
+  filter(!species_common_name == "NONE") |>
+  tally() |>
+  arrange(-n) |>
+  rename(Species = species_common_name, `Count of detections` = n))
+
+```
 
 ```{r}
 #| warning: false
@@ -453,7 +472,6 @@ bcsi_noise_ind
 noise_per_loc
 ```
 
-
 ```{r}
 #| warning: false
 #| echo: false
@@ -479,7 +497,7 @@ ggplot(ocean_richness, aes(x = coast_distance, y = species_count)) +
 
 ### Evaluation of HawkEars v1.0.8
 
-Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching ~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
+Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (\~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching \~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
 
 ```{r}
 
@@ -495,6 +513,5 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 ```
 
 ### HawkEars 2.0
-
 
 ## Discussion and recommendations
