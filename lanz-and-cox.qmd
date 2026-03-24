@@ -20,7 +20,7 @@ author:
     affiliation: "Biodiversity Pathways Ltd."
   - name: "Kevin Kelly"
     affiliation: "Biodiversity Pathways Ltd."
-  - name: "Eric McLaren"
+  - name: "Erica McClaren"
     affiliation: "BC Ministry of Environment and Parks"
   - name: "Iain Reid"
     affiliation: "BC Ministry of Environment and Parks"
@@ -36,7 +36,7 @@ styles: styles.css
 github: https://github.com/biodiversitypathways/lanz-and-cox
 ---
 
-![](assets/lanz-and-cox-google.png){style="float:left`;" fig-alt="Lanz and Cox Islands (c) Google" fig-align="center"}
+![](assets/lanz-and-cox-banner.png){style="float:left`;" fig-alt="Lanz and Cox Islands (c) Iain Reid" fig-align="center"}
 
 ```{r}
 #| label: Load packages and authenticate to WildTrax
@@ -85,6 +85,14 @@ This report is dynamically generated, meaning its results may evolve with the ad
 Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous recording units (ARUs) were deployed at `r length(unique(bcsi_locs$location))` locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
 
 # Land Acknowledgement
+
+The land and sea in the Scott Islands are located within the territories of the Quatsino and Tlatlasikwala First Nations. BC Parks and Environment and Climate Change Canada – Canadian Wildlife Service are working in partnership with Quatsino and Tlatlasikwala First Nations and for this part of the larger project, they would like to express their gratitude to T̕łat̕łasikwa̱la First Nation member Anne Wilson and Quatsino First Nation member Graem Hall for providing in-field support during deployment and collection of audio recording units on Lanz and Cox Islands.
+
+# Funding Acknowledgement
+
+This project was funded in part by the BC License Plate program. 
+
+![](assets/license-plate.jpg){style="float:left`;" fig-alt="Government of British Columbia (c)" fig-align="center"}
 
 # Introduction
 
@@ -215,7 +223,7 @@ We first wanted to assess the accuracy of the current version of the HawkEars cl
 #| message: false
 #| include: true
 
-bcsi_seabirds <- wt_download_report(c(4069,4021), 'ARU', c('main','ai'))
+bcsi_seabirds <- wt_download_report(c(4069,4021,4346), 'ARU', c('main','ai'))
 
 bcsi_seabirds[[1]] |> 
   filter(species_common_name %in% seabirds) |> 
