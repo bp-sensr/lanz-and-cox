@@ -56,7 +56,7 @@ library(ggridges)
 wt_auth()
 
 load("lanz-and-cox.RData")
-save.image("lanz-and-cox.RData")
+#save.image("lanz-and-cox.RData")
 
 ```
 
