@@ -56,7 +56,7 @@ library(ggridges)
 wt_auth()
 
 load("lanz-and-cox.RData")
-#save.image("lanz-and-cox.RData")
+save.image("lanz-and-cox.RData")
 
 ```
 
@@ -90,7 +90,7 @@ The land and sea in the Scott Islands are located within the territories of the 
 
 # Funding Acknowledgement
 
-This project was funded in part by the BC License Plate program. 
+This project was funded in part by the BC License Plate program.
 
 ![](assets/license-plate.jpg){style="float:left`;" fig-alt="Government of British Columbia (c)" fig-align="center"}
 
@@ -223,7 +223,7 @@ We first wanted to assess the accuracy of the current version of the HawkEars cl
 #| message: false
 #| include: true
 
-bcsi_seabirds <- wt_download_report(c(4069,4021,4346), 'ARU', c('main','ai'))
+bcsi_seabirds <- wt_download_report(c(4069,4021), 'ARU', c('main','ai'))
 
 bcsi_seabirds[[1]] |> 
   filter(species_common_name %in% seabirds) |> 
@@ -241,7 +241,7 @@ Next we continued to intensify our evaluation of classifiers by using HawkEars 2
 
 # Results
 
-## Species richness and diversity
+## Songbird species richness and diversity
 
 A total of `r nrow(distinct_spp)` species were found with a summary of detections found at @tbl-spp-summary. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon).
 
@@ -395,6 +395,9 @@ bcsi_main |>
 #| warning: false
 #| message: false
 #| include: true
+#| fig-align: center
+#| fig-cap: Individuals detected versus environmental noise
+#| label: fig-ind-noise
 
 noise_level_map <- c(
   "Low"     = 1,
@@ -410,7 +413,7 @@ noise_pattern_map <- c(
   "Constant"     = 4
 )
 
-bcsi_noise_ind <- bcsi_main |>
+bcsi_main |>
   separate_rows(max_noise_volume, sep = ",") |>
   mutate(
     max_noise_volume = str_trim(max_noise_volume),
@@ -429,7 +432,19 @@ bcsi_noise_ind <- bcsi_main |>
   theme_minimal() +
   scale_fill_viridis_d(option = "turbo")
 
-noise_per_loc <- bcsi_main |>
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Noise per location on Scott Islands
+#| label: fig-noise-loc
+
+bcsi_main |>
   separate_rows(max_noise_volume, sep = ",") |>
   mutate(max_noise_volume = str_trim(max_noise_volume),
          noise_score = case_when(max_noise_volume == "Low" ~ 1, max_noise_volume == "Medium" ~ 2, max_noise_volume == "High" ~ 3, max_noise_volume == "Extreme" ~ 4)) |>
@@ -454,53 +469,6 @@ noise_per_loc <- bcsi_main |>
 
 ```
 
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-#| include: true
-#| fig-align: center
-#| fig-cap: Individuals detected versus environmental noise
-#| label: fig-ind-noise
-
-bcsi_noise_ind
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-#| include: true
-#| fig-align: center
-#| fig-cap: Noise per location on Scott Islands
-#| label: fig-noise-loc
-
-noise_per_loc
-```
-
-```{r}
-#| warning: false
-#| echo: false
-#| eval: false
-#| include: true
-#| fig-align: center
-#| fig-cap: Relationship between distance to coastline and species richness across ARU monitoring locations.
-#| label: fig-ocean-richness
-
-ocean_richness <- spp_rich_location |>
-  inner_join(pei_locs |> select(location, coast_distance) |> distinct(), by = "location") |>
-  filter(!location %in% c("ASC-1"))
-
-ggplot(ocean_richness, aes(x = coast_distance, y = species_count)) +
-  geom_point(alpha = 0.7, size = 2) +
-  geom_smooth(method = "lm", se = TRUE, color = "steelblue", linewidth = 0.8) +
-  labs(x = "Distance to Coastline (m)", y = "Species Richness") +
-  theme_bw(base_size = 12)
-
-```
-
 ## Classifier results
 
 ### Evaluation of HawkEars v1.0.8
@@ -521,5 +489,79 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 ```
 
 ### HawkEars 2.0
+
+Initial runs of HawkEars 2.0 were conducted yielding a total of `r nrow(bcsi_he2)` detections were generated from the classification process with raw data visible in @fig-raw-he2.
+
+```{r}
+#| echo: false
+#| eval: false
+#| warning: false
+#| message: false
+#| include: true
+
+bcsi_he2 <- wt_get_sync("project_aru_tags", project = 4346)
+
+make_pie <- function(loc, data) {
+  data |>
+    filter(location == loc) |>
+    count(species_code) |>
+    ggplot(aes(x = "", y = n, fill = species_code)) +
+    geom_col(width = 1, color = "white") +
+    coord_polar(theta = "y") +
+    labs(
+      title = paste(loc, "Species Detections"),
+      fill  = "Species"
+    ) +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+    scale_fill_viridis_d()
+}
+
+ggplot_to_html <- function(p) {
+  tmp <- tempfile(fileext = ".png")
+  ggsave(tmp, plot = p, width = 4, height = 4, dpi = 100)
+  encoded <- base64enc::base64encode(tmp)
+  as.character(tags$img(src = paste0("data:image/png;base64,", encoded),
+                        width = "300px"))
+}
+
+lac_locs2 <- lac_locs |>
+  mutate(
+    pie_chart = map(location, make_pie, data = bcsi_he2),
+    pie_chart_html = map_chr(pie_chart, ggplot_to_html)
+  )
+
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Raw HawkEars 2.0 detections
+#| label: fig-raw-he2
+
+leaflet(lac_locs2) %>%
+  addTiles() %>%
+  addMarkers(
+    icon = ~pie_chart,
+    popup = ~pie_chart_html
+  ) %>%
+  addLegend(
+    position = "bottomright",
+    colors = pal,
+    labels = names(pal),
+    title = "Species"
+  ) %>%
+  addMiniMap(position = "bottomleft") %>%
+  addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "sqmeters")
+
+```
+
+## Seabird relative abundance
+
+
 
 ## Discussion and recommendations
