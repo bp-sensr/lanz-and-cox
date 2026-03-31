@@ -34,6 +34,7 @@ prefer-html: true
 toc-location: left
 styles: styles.css
 github: https://github.com/biodiversitypathways/lanz-and-cox
+
 ---
 
 ![](assets/lanz-and-cox-banner.png){style="float:left`;" fig-alt="Lanz and Cox Islands (c) Iain Reid" fig-align="center"}
@@ -53,7 +54,9 @@ library(vegan)
 library(kableExtra)
 library(ggridges)
 
-wt_auth(force = T)
+Sys.getenv("WT_USERNAME")
+Sys.getenv("WT_PASSWORD")
+wt_auth()
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
