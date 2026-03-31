@@ -9,10 +9,6 @@ jobs:
   render:
     runs-on: ubuntu-latest
 
-    env:
-      WT_USERNAME: ${{ secrets.WT_USERNAME }}
-      WT_PASSWORD: ${{ secrets.WT_PASSWORD }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -24,4 +20,7 @@ jobs:
         run: Rscript -e 'install.packages("wildrtrax")'
 
       - name: Render
+        env:
+          WT_USERNAME: ${{ secrets.WT_USERNAME }}
+          WT_PASSWORD: ${{ secrets.WT_PASSWORD }}
         run: quarto render

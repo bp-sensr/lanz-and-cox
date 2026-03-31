@@ -54,9 +54,7 @@ library(vegan)
 library(kableExtra)
 library(ggridges)
 
-Sys.getenv("WT_USERNAME")
-Sys.getenv("WT_PASSWORD")
-wt_auth()
+wildrtrax::wt_auth(force = TRUE)
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
@@ -117,7 +115,7 @@ ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Isl
 #| fig-cap: Locations from Lanz and Cox Provincial Park ARU Monitoring Program
 #| label: fig-aru-monitoring-locations
 
-leaflet() %>%
+m <- leaflet() %>%
   addTiles() %>%
   addCircleMarkers(
     data = lac_locs,
@@ -128,6 +126,14 @@ leaflet() %>%
   ) %>%
   addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "sqmeters") %>%
   addMiniMap(position = "bottomleft")
+
+if (knitr::is_html_output()) {
+  m
+} else {
+  map_file <- "map_aru_locations.png"
+  if (!file.exists(map_file)) mapview::mapshot2(m, file = map_file)
+  knitr::include_graphics(map_file)
+}
 
 ```
 
@@ -479,6 +485,14 @@ bcsi_main |>
 Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (\~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching \~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: HawkEars 1.0.8 performance evaluation
+#| label: fig-he-perform
 
 wt_classifier_threshold(eval)
 
@@ -546,7 +560,7 @@ lac_locs2 <- lac_locs |>
 #| fig-cap: Raw HawkEars 2.0 detections
 #| label: fig-raw-he2
 
-leaflet(lac_locs2) %>%
+m2 <- leaflet(lac_locs2) %>%
   addTiles() %>%
   addMarkers(
     icon = ~pie_chart,
@@ -561,7 +575,58 @@ leaflet(lac_locs2) %>%
   addMiniMap(position = "bottomleft") %>%
   addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "sqmeters")
 
+if (knitr::is_html_output()) {
+  m2
+} else {
+  map_file <- "map_hawkears2.png"
+  if (!file.exists(map_file)) mapview::mapshot2(m2, file = map_file)
+  knitr::include_graphics(map_file)
+}
+
 ```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-height: 8
+#| fig-cap: Raw HawkEars 2.0 detections; describes proportion of hits across each locations across classifier scores bins
+#| label: fig-raw-he2-proportions
+
+bcsi_he2 %>%
+  mutate(
+    score = as.numeric(species_individual_comments),
+    score = ifelse(score < 0 | score > 1, NA, score),
+    score_bin = cut(
+      score,
+      breaks = c(0, 0.25, 0.5, 0.75, 1),
+      include.lowest = TRUE,
+      labels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
+    ),
+    score_bin = factor(
+      score_bin,
+      levels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
+    )
+  ) %>%
+  filter(!is.na(score_bin)) %>%
+  mutate(location = factor(location)) %>%
+  ggplot(aes(x = location, fill = species_code)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~ score_bin) +
+  coord_flip() +
+  scale_fill_viridis_d() +
+  labs(
+    x = "Location",
+    y = "Proportion of detections",
+    fill = "Species"
+  ) +
+  theme_minimal()
+
+```
+
 
 ## Seabird relative abundance
 
