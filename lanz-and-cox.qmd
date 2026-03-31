@@ -53,7 +53,7 @@ library(vegan)
 library(kableExtra)
 library(ggridges)
 
-wt_auth()
+wt_auth(force = T)
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
