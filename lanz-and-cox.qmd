@@ -56,7 +56,7 @@ library(vegan)
 library(kableExtra)
 library(ggridges)
 
-wildrtrax::wt_auth(force = TRUE)
+#wildrtrax::wt_auth(force = TRUE)
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
@@ -229,7 +229,7 @@ We first wanted to assess the accuracy of the current version of the HawkEars cl
 
 ```{r}
 #| echo: false
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: true
@@ -259,6 +259,23 @@ A total of `r nrow(distinct_spp)` species were found with a summary of detection
 ```{r}
 #| warning: false
 #| echo: false
+#| eval: false
+#| message: false
+#| include: false
+
+species_tally <- bcsi_main |>
+        wt_tidy_species(remove = c("unknown")) |>
+  group_by(species_common_name) |>
+  filter(!species_common_name == "NONE") |>
+  tally() |>
+  arrange(-n) |>
+  rename(Species = species_common_name, `Count of detections` = n)
+
+```
+
+```{r}
+#| warning: false
+#| echo: false
 #| eval: true
 #| message: false
 #| include: true
@@ -267,13 +284,7 @@ A total of `r nrow(distinct_spp)` species were found with a summary of detection
 #| code-fold: true
 #| tbl-cap: Count of detections per species
 
-kable(bcsi_main |>
-        wt_tidy_species(remove = c("unknown")) |>
-  group_by(species_common_name) |>
-  filter(!species_common_name == "NONE") |>
-  tally() |>
-  arrange(-n) |>
-  rename(Species = species_common_name, `Count of detections` = n))
+kable(species_tally)
 
 ```
 
@@ -281,7 +292,7 @@ kable(bcsi_main |>
 #| warning: false
 #| message: false
 #| echo: false
-#| eval: true
+#| eval: false
 #| include: false
 
 spp_rich_location <- bcsi_main |>
@@ -328,17 +339,11 @@ spp_rich_location |>
 ```{r}
 #| warning: false
 #| echo: false
-#| eval: true
+#| eval: false
 #| message: false
-#| include: true
-#| results: hide
-#| fig-align: center
-#| fig-cap: Shannon diversity index over years
-#| label: fig-shannon
-#| cap-location: bottom
-#| code-fold: true
+#| include: false
 
-bcsi_main |> 
+bcsi_shannon <- bcsi_main |> 
   wt_tidy_species(remove = c("amphibian","abiotic","insect","unknown"), zerofill = F) |>
   inner_join(wt_get_species() |> select(species_code, species_class, species_order), by = "species_code") |>
   select(location, recording_date_time, species_code, species_common_name, individual_order, abundance) |>
@@ -353,7 +358,23 @@ bcsi_main |>
   ungroup() |>
   group_by(location, year) |>
   summarise(shannon_index = diversity(total_count, index = "shannon")) |>
-  ungroup() |>
+  ungroup() 
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| results: hide
+#| fig-align: center
+#| fig-cap: Shannon diversity index over years
+#| label: fig-shannon
+#| cap-location: bottom
+#| code-fold: true
+
+bcsi_shannon |>
   ggplot(aes(x = factor(year), y = shannon_index, fill = factor(year))) +
   geom_boxplot() +
   geom_point(alpha = 0.6, colour = "grey") +
@@ -369,15 +390,11 @@ bcsi_main |>
 ```{r}
 #| warning: false
 #| echo: false
-#| eval: true
+#| eval: false
 #| message: false
-#| include: true
-#| results: hide
-#| fig-align: center
-#| fig-cap: Seasonal detection activity of most commonly detected (n > 3) forest species
-#| label: fig-spp-activity
+#| include: false
 
-bcsi_main |>
+bcsi_seasonal <- bcsi_main |>
   wt_tidy_species(remove = c("amphibian","abiotic","insect","unknown"), zerofill = T) |>
   filter(!species_code == "NONE") |>
   select(location, recording_date_time, species_common_name, species_code, abundance) |>
@@ -388,7 +405,21 @@ bcsi_main |>
   group_by(species_code) |>
   add_tally() |>
   ungroup() |>
-  filter(!n<3) |>
+  filter(!n<3)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| results: hide
+#| fig-align: center
+#| fig-cap: Seasonal detection activity of most commonly detected (n > 3) forest species
+#| label: fig-spp-activity
+
+bcsi_seasonal |>
   ggplot(aes(x = month, y = species_common_name)) + 
   geom_density_ridges(alpha = 0.4, scale = 4) + 
   scale_x_continuous(breaks = 1:12, labels = month.abb) +

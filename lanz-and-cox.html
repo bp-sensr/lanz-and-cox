@@ -442,15 +442,6 @@ Figure&nbsp;2: Recordings collected from Lanz and Cox Provincial Park ARU Monito
 <section id="use-of-automated-classifiers-on-seabirds" class="level2">
 <h2 class="anchored" data-anchor-id="use-of-automated-classifiers-on-seabirds">Use of automated classifiers on seabirds</h2>
 <p>We first wanted to assess the accuracy of the current version of the HawkEars classifier for three focal species in the group: Common Murre, Marbled Murrelet, and Black Oystercatcher. We extracted all recordings from WildTrax in which the classifier detected these species with a mean score of ~0.33 used. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the <code>wt_evaluate_classifier()</code> and <code>wt_classifier_threshold()</code> functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="lanz-and-cox_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
 <p>Next we continued to intensify our evaluation of classifiers by using HawkEars 2.0 here.</p>
 </section>
 </section>
@@ -638,7 +629,7 @@ Figure&nbsp;3: Species richness at forest monitoring locations across years
 </div>
 <div class="cell" data-layout-align="center" data-cap-location="bottom">
 <div class="cell-output-display">
-<div id="fig-shannon" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-cap-location="bottom">
+<div id="fig-shannon" class="quarto-float quarto-figure quarto-figure-center anchored" data-cap-location="bottom" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-shannon-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="lanz-and-cox_files/figure-html/fig-shannon-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
