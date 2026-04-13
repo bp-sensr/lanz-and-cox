@@ -20,6 +20,8 @@ author:
     affiliation: "Biodiversity Pathways Ltd."
   - name: "Kevin Kelly"
     affiliation: "Biodiversity Pathways Ltd."
+  - name: "Victoria Berg"
+    affiliation: "Biodiversity Pathways Ltd."
   - name: "Erica McClaren"
     affiliation: "BC Ministry of Environment and Parks"
   - name: "Iain Reid"
@@ -507,7 +509,7 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 
 ### HawkEars 2.0
 
-Initial runs of HawkEars 2.0 were conducted yielding a total of `r nrow(bcsi_he2)` detections were generated from the classification process with raw data visible in @fig-raw-he2.
+Initial runs of HawkEars 2.0 were conducted yielding a total of `r nrow(bcsi_he2)` detections were generated from the classification process with raw data visible in @fig-raw-he2. Across all locations and classifier confidence score bins, MAMU consistently dominated the proportion of detections, particularly at higher confidence thresholds (0.75–1), where it accounted for the vast majority of hits at nearly all DC and DL sites. CAAU and COMU were the next most frequently detected species, contributing moderate proportions across the low-to-mid confidence bins (0–0.25 and 0.25–0.5), with their presence declining relative to MAMU as classifier confidence increased. ANMU appeared most prominently in the lower confidence bins at select DC locations, suggesting either lower detection certainty or lower site-level abundance. RHAU and TUPU were detected at notably lower proportions overall, with TUPU appearing sporadically at a handful of locations, most visibly at DC10 and DL12, predominantly in the lower confidence range. As classifier confidence increased toward the 0.75–1 bin, the community composition simplified considerably, with MAMU detections becoming overwhelmingly dominant and the contribution of other species diminishing across nearly all locations. This pattern suggests that higher-confidence classifier scores are selectively capturing MAMU calls with greater reliability, while lower-confidence bins reflect a broader and more uncertain mix of seabird vocalizations across the surveyed sites. 
 
 ```{r}
 #| echo: false
@@ -626,10 +628,54 @@ bcsi_he2 %>%
   theme_minimal()
 
 ```
+Raw counts were validatd with results at @fig-audited.
 
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-height: 8
+#| fig-cap: Audited seabird detections
+#| label: fig-audited
+
+bcsi_he2 %>%
+  mutate(
+    score = as.numeric(species_individual_comments),
+    score = ifelse(score < 0 | score > 1, NA, score),
+    score_bin = cut(
+      score,
+      breaks = c(0, 0.25, 0.5, 0.75, 1),
+      include.lowest = TRUE,
+      labels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
+    ),
+    score_bin = factor(
+      score_bin,
+      levels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
+    )
+  ) %>%
+  filter(!is.na(score_bin)) %>%
+  mutate(location = factor(location)) %>%
+  ggplot(aes(x = location, fill = species_code)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~ score_bin) +
+  coord_flip() +
+  scale_fill_viridis_d() +
+  labs(
+    x = "Location",
+    y = "Proportion of detections",
+    fill = "Species"
+  ) +
+  theme_minimal()
+
+```
 
 ## Seabird relative abundance
 
 
 
 ## Discussion and recommendations
+
+
