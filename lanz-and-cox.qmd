@@ -58,7 +58,7 @@ library(ggridges)
 library(car)
 library(scales)
 
-wildrtrax::wt_auth(force = TRUE)
+#wildrtrax::wt_auth(force = TRUE)
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
