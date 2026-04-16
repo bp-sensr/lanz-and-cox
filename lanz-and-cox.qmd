@@ -55,8 +55,10 @@ library(leaflet)
 library(vegan)
 library(kableExtra)
 library(ggridges)
+library(car)
+library(scales)
 
-#wildrtrax::wt_auth(force = TRUE)
+wildrtrax::wt_auth(force = TRUE)
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
@@ -175,10 +177,10 @@ seabirds <- c(
   "Short-tailed Albatross",
   "Black-footed Albatross",
   "Pink-footed Shearwater",
+  "Leach's Storm-petrel",
   "Marbled Murrelet",
   "Ancient Murrelet",
-  "Black Oystercatcher",
-  "Leach's Storm-petrel"
+  "Black Oystercatcher"
 )
 
 # wt_get_species() |>
@@ -248,7 +250,7 @@ eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_s
 # wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
-Next we continued to intensify our evaluation of classifiers by using HawkEars 2.0 here.
+Next, we continued to intensify our evaluation of classifiers by using HawkEars 2.0. This new version, not currently included in WildTrax added additional species into the classifier. We performed verification and evaluation of the results. 
 
 # Results
 
@@ -429,7 +431,12 @@ bcsi_seasonal |>
 
 ```
 
-### Proximity to ocean and noise effects
+### Noise effects
+
+Noisier recordings captured fewer seabirds (@fig-ind-noise). At Low and Medium noise levels, recorders typically detected around 5 individuals per recording, while High and Extreme noise levels roughly halved that — dropping to medians of 
+approximately 3 and 2 individuals respectively. At the noisiest sites, many recordings picked up no seabirds at all. Occasional bursts of high detections (up to 20 individuals) did occur even under noisy conditions, but these were the exception rather than the rule. Not all sites experienced the same noise conditions (@fig-noise-loc). Most DC sites were consistently loud, with the majority reaching High noise levels and DC13 and DC15 hitting Extreme — the worst in the dataset. DL sites were generally  quieter, with most sitting around Medium noise, though DL02, DL11, DL12, and DL15 also reached High levels. DL06 stood out as the quietest location overall. Several sites also fluctuated across noise categories over the survey period, meaning detection conditions were not always consistent even within a single location. The systematically higher noise at DC sites likely explains some of the lower and more variable seabird detections recorded there compared to DL sites.
+
+We modeled maximum noise level as an ordinal response (Low < Medium < High < Extreme) using a cumulative link model with distance to coast and coastline orientation (sine/cosine transformation) as predictors. Island identity did not significantly improve model fit (ΔAIC = 0.07, p = 0.16), nor was there evidence for an interaction between island and distance (ΔAIC = 1.94, p = 0.79), indicating that the relationship between distance to coast and noise level was consistent across islands. Distance to coast showed a clear shift in the probability distribution across noise categories (@fig-noise-distance), with the probability of High noise declining substantially with increasing distance, from ~45% at 50 m to ~15–20% near 750 m. In contrast, the probability of Low noise increased steadily with distance, rising from ~5–10% near the coast to ~30% inland. Medium noise remained the most probable category across most distances, peaking around ~50–55% at intermediate distances (~600–800 m), while Extreme noise was consistently rare and declined slightly with distance (~10% to <5%). Coast direction did not appear to play an important role (@fig-noise-direction). Overall, this pattern indicates a gradient from higher to lower noise environments moving inland, with the strongest transition occurring between High and Low categories.
 
 ```{r}
 #| echo: false
@@ -507,6 +514,162 @@ bcsi_main |>
     x = "Noise level",
     y = "Location"
   ) +
+  theme_minimal()
+
+```
+
+```{r}
+#| echo: false
+#| eval: false
+#| warning: false
+#| message: false
+#| include: false
+
+lc_dist <- read_csv("lanz-cox-distance.csv") |>
+  mutate(
+    coast_deg = case_when(
+      coast_direction == "N"  ~   0,
+      coast_direction == "NW" ~ 315,
+      coast_direction == "W"  ~ 270,
+      coast_direction == "S"  ~ 180,
+      coast_direction == "E"  ~  90
+    )
+  )
+
+lc_dist <- lc_dist |>
+  mutate(
+    coast_sin = sin(coast_deg * pi / 180),
+    coast_cos = cos(coast_deg * pi / 180)
+  ) |>
+  mutate(island = case_when(grepl('^DC',location) ~ "Cox", TRUE ~ "Lanz"))
+
+bcsi_noise_dist <- bcsi_main |>
+  left_join(lc_dist, by = "location") |>
+  separate_rows(max_noise_volume, sep = ",") |>
+  mutate(
+    max_noise_volume = str_trim(max_noise_volume),
+    max_noise_volume = factor(max_noise_volume,
+                              levels = c("Low", "Medium", "High", "Extreme"),
+                              ordered = TRUE)
+  ) |>
+  drop_na(max_noise_volume, distance, coast_sin, coast_cos)
+
+noise_model_df <- bcsi_noise_dist |>
+  mutate(island = factor(island)) |>
+  group_by(location, recording_date_time, island, distance, coast_deg, coast_sin, coast_cos) |>
+  summarise(
+    max_noise_volume = max(max_noise_volume, na.rm = TRUE),
+    .groups = "drop"
+  ) 
+
+m0      <- clm(max_noise_volume ~ 1, data = noise_model_df, link = "logit")
+m_dist  <- clm(max_noise_volume ~ distance, data = noise_model_df, link = "logit")
+m_dir   <- clm(max_noise_volume ~ coast_sin + coast_cos, data = noise_model_df, link = "logit")
+m_full  <- clm(max_noise_volume ~ distance + coast_sin + coast_cos,
+               data = noise_model_df, link = "logit")
+m_island <- clm(max_noise_volume ~ island,
+                data = noise_model_df, link = "logit")
+m_full_island <- clm(max_noise_volume ~ distance + coast_sin + coast_cos + island,
+                     data = noise_model_df, link = "logit")
+m_interaction <- clm(max_noise_volume ~ distance * island + coast_sin + coast_cos,
+                     data = noise_model_df, link = "logit")
+anova(m_full, m_full_island)
+anova(m_full_island, m_interaction)
+
+
+summary(m_full)
+
+Anova(m_full, type = "III")
+
+pred_dist <- ggpredict(
+  m_full,
+  terms = "distance [50:900 by=10]",
+  condition = c(
+    coast_sin = mean(noise_model_df$coast_sin, na.rm = TRUE),
+    coast_cos = mean(noise_model_df$coast_cos, na.rm = TRUE)
+  )
+) |>
+  as_tibble() |>
+  mutate(
+    noise_level = factor(response.level,
+                         levels = c("1","2","3","4"),
+                         labels = c("Low","Medium","High","Extreme"))
+  )
+
+ref_dist <- median(noise_model_df$distance, na.rm = TRUE)
+
+pred_dir <- map_dfr(1:nrow(coast_grid), function(i) {
+  ggpredict(
+    m_full,
+    terms = paste0("distance [", round(ref_dist), "]"),
+    condition = c(
+      coast_sin = coast_grid$coast_sin[i],
+      coast_cos = coast_grid$coast_cos[i]
+    )
+  ) |>
+    as_tibble() |>
+    mutate(direction = coast_grid$label[i])
+}) |>
+  mutate(
+    noise_level = factor(response.level,
+                         levels = c("1","2","3","4"),
+                         labels = c("Low","Medium","High","Extreme")),
+    direction = factor(direction, levels = coast_grid$label)
+  )
+
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Noise per distance
+#| label: fig-noise-distance
+
+ggplot(pred_dist, aes(x = x, y = predicted,
+                      colour = noise_level,
+                      fill = noise_level,
+                      group = noise_level)) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high),
+              alpha = 0.2, colour = NA) +
+  geom_line(linewidth = 1) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_colour_viridis_d(option = "turbo") +
+  scale_fill_viridis_d(option = "turbo") +
+  labs(title = "Effect of distance to coast on noise level",
+       x = "Distance to coast (m)",
+       y = "Predicted probability",
+       colour = "Noise level",
+       fill = "Noise level") +
+  theme_minimal()
+
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Noise per coast direction
+#| label: fig-noise-direction
+
+ggplot(pred_dir,
+       aes(x = direction, y = predicted,
+           colour = noise_level,
+           group = noise_level)) +
+  geom_pointrange(aes(ymin = conf.low, ymax = conf.high),
+                  position = position_dodge(width = 0.4)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_colour_viridis_d(option = "turbo") +
+  labs(title = "Effect of coast direction on noise level (at 200m)",
+       x = "Coast direction",
+       y = "Predicted probability",
+       colour = "Noise level") +
   theme_minimal()
 
 ```
@@ -659,53 +822,129 @@ bcsi_he2 %>%
   theme_minimal()
 
 ```
-Raw counts were validatd with results at @fig-audited.
+
+Across all `r sum(xx$total_tags)` tags assessed, `r sum(xx$verified_tags)` (`r scales::percent(sum(xx$verified_tags) / sum(xx$total_tags), accuracy = 1) `) have been manually verified, while `r sum(xx$unverified_tags)` remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier.
+
+Among target seabird taxa, performance is generally poor across species, with high false positive rates observed even within the reviewed subset. TUPU had the largest number of detections (`r xx |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r xx |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; all reviewed tags were reassigned, yielding a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1) `. RHAU showed a similarly high error rate, with `r xx |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1) `. ANMU also showed complete misclassification within the reviewed subset, with `r xx |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags all reassigned, corresponding to a false positive rate of `r scales::percent(xx |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1) `, and `r xx |> filter(source_species_code == "ANMU") |> pull(unverified_tags)` detections remaining unreviewed.
+
+MAMU and COMU are characterised by substantial uncertainty due to large numbers of unverified detections. For MAMU, `r xx |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, while COMU has `r xx |> filter(source_species_code == "COMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "COMU") |> pull(total_tags)` unverified. Within the small verified subsets, all reviewed detections were reassigned, producing verified false positive rates of `r scales::percent(xx |> filter(source_species_code == "MAMU") |> pull(fp_rate_verified), accuracy = 1) ` and `r scales::percent(xx |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1) ` respectively; however, these estimates are highly uncertain given the very small number of verified tags.
+
+CAAU currently has no verified tags (`r xx |> filter(source_species_code == "CAAU") |> pull(verified_tags)`), and therefore no performance estimate can be derived.
+
+Non-seabird reassignment categories collectively account for `r xx |> filter(source_species_code %in% c("NOISE","HUMVOC","UNIN","HETH","PAWR","TOWA","UNBI")) |> pull(total_tags) |> sum()` tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with `r xx |> filter(source_species_code == "NOISE") |> pull(total_tags)` tags, followed by UNIN with `r xx |> filter(source_species_code == "UNIN") |> pull(total_tags)`, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.
 
 ```{r}
 #| echo: false
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: true
-#| fig-align: center
-#| fig-height: 8
-#| fig-cap: Audited seabird detections
-#| label: fig-audited
 
-bcsi_he2 %>%
-  mutate(
-    score = as.numeric(species_individual_comments),
-    score = ifelse(score < 0 | score > 1, NA, score),
-    score_bin = cut(
-      score,
-      breaks = c(0, 0.25, 0.5, 0.75, 1),
-      include.lowest = TRUE,
-      labels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
+audit_local <- function(task_id) {
+  result <- request("http://127.0.0.1:8000") |>
+    req_url_path_append("bis/get-aru-full-audit") |>
+    req_url_query(ar_task_id = task_id) |>
+    req_method("GET") |>
+    req_perform() |>
+    resp_body_json(simplifyVector = TRUE)
+
+  if (length(result) == 0 || !all(c("ar_source_species_id", "ar_target_species_id") %in% names(result))) return(tibble())
+
+  species <- wt_get_species() |> select(species_code, species_id, species_common_name)
+
+  as_tibble(result) |>
+    left_join(species, by = c("ar_source_species_id" = "species_id")) |>
+    rename(source_species_code = species_code, source_species_common_name = species_common_name) |>
+    left_join(species, by = c("ar_target_species_id" = "species_id")) |>
+    rename(target_species_code = species_code, target_species_common_name = species_common_name) |>
+    select(-ar_unique_name)
+}
+aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n = Inf) {
+  
+  group_by <- match.arg(group_by)
+  
+  tasks <- wt_get_sync("project_aru_tasks", project = project_id) |>
+    pull(internal_task_id)
+  
+  if (is.finite(n)) tasks <- tasks[1:n]
+  
+  data <- tasks |>
+    map(audit) |>
+    bind_rows()
+  
+  if (length(data) == 0 || !all(c("ar_source_species_id", "ar_target_species_id") %in% names(data))) {return(tibble())}
+  
+  if (group_by == "species") {
+    data |>
+      group_by(source_species_code) |>
+      summarise(
+        total_tags      = n_distinct(ar_tag_id),
+        false_positives = sum(ar_action == "UPDATE" & source_species_code != target_species_code, na.rm = TRUE),
+        fp_rate         = false_positives / total_tags,
+        tp_rate         = 1 - fp_rate,
+        .groups         = "drop"
+      ) |>
+      drop_na()
+  } else {
+    data |>
+      group_by(ar_created_by_user_id) |>
+      summarise(
+        total_tags      = n_distinct(ar_tag_id),
+        false_positives = sum(ar_action == "UPDATE" & source_species_code != target_species_code, na.rm = TRUE),
+        fp_rate         = false_positives / total_tags,
+        tp_rate         = 1 - fp_rate,
+        .groups         = "drop"
+      ) |>
+      drop_na()
+  }
+}
+
+speciess <- wt_get_species() |> select(species_code, species_id, species_common_name)
+
+xx <- wt_get_view("project_aru_tasks", project = ) |>
+  unnest_longer(detectedSpeciesIds) |>
+  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
+  pull(taskId) |>
+  purrr::map(audit_local) |>
+  purrr::keep(\(x) nrow(x) > 0) |>
+  purrr::list_rbind() |>
+  select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
+  distinct() |>
+  left_join(wt_download_report(4346, 'ARU', 'tag') |> select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
+group_by(source_species_code, source_species_common_name) |>
+  summarise(
+    total_tags        = n_distinct(ar_tag_id),
+    verified_tags     = n_distinct(ar_tag_id[tag_is_verified]),
+    false_positives   = sum(
+      ar_action == "UPDATE" & 
+        source_species_code != target_species_code & 
+        tag_is_verified,
+      na.rm = TRUE
     ),
-    score_bin = factor(
-      score_bin,
-      levels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
-    )
-  ) %>%
-  filter(!is.na(score_bin)) %>%
-  mutate(location = factor(location)) %>%
-  ggplot(aes(x = location, fill = species_code)) +
-  geom_bar(position = "fill") +
-  facet_wrap(~ score_bin) +
-  coord_flip() +
-  scale_fill_viridis_d() +
-  labs(
-    x = "Location",
-    y = "Proportion of detections",
-    fill = "Species"
-  ) +
-  theme_minimal()
+    fp_rate_verified  = false_positives / verified_tags,
+    tp_rate_verified  = 1 - fp_rate_verified,
+    unverified_tags   = total_tags - verified_tags,
+    fp_rate_upper     = (false_positives + unverified_tags) / total_tags,
+    fp_rate_lower     = false_positives / total_tags,
+    .groups = "drop"
+  )
+
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| eval: true
+#| message: false
+#| include: true
+#| label: tbl-fp-rates
+#| tbl-cap: Rates of verification and classification for seabirds
+
+kable(xx)
 
 ```
 
 ## Seabird relative abundance
-
-
 
 ## Discussion and recommendations
 
