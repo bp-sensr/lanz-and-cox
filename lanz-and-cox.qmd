@@ -47,16 +47,18 @@ github: https://github.com/biodiversitypathways/lanz-and-cox
 #| echo: false
 #| eval: true
 #| warning: false
-#| message: false
+#| message: false 
 
 library(wildrtrax)
 library(tidyverse)
 library(leaflet)
 library(vegan)
-library(kableExtra)
 library(ggridges)
-library(car)
+library(ordinal)
+library(ggeffects)
 library(scales)
+library(DT)
+library(httr2)
 
 #wildrtrax::wt_auth(force = TRUE)
 
@@ -158,7 +160,7 @@ bcsi_locs <- bcsi_main |>
   mutate(surveyed = 1) |>
   pivot_wider(names_from = year, values_from = surveyed, values_fill = 0)
 
-kable(bcsi_locs)
+datatable(bcsi_locs)
 
 ```
 
@@ -286,7 +288,7 @@ species_tally <- bcsi_main |>
 #| code-fold: true
 #| tbl-cap: Count of detections per species
 
-kable(species_tally)
+datatable(species_tally)
 
 ```
 
@@ -576,7 +578,6 @@ m_interaction <- clm(max_noise_volume ~ distance * island + coast_sin + coast_co
 anova(m_full, m_full_island)
 anova(m_full_island, m_interaction)
 
-
 summary(m_full)
 
 Anova(m_full, type = "III")
@@ -823,15 +824,7 @@ bcsi_he2 %>%
 
 ```
 
-Across all `r sum(xx$total_tags)` tags assessed, `r sum(xx$verified_tags)` (`r scales::percent(sum(xx$verified_tags) / sum(xx$total_tags), accuracy = 1) `) have been manually verified, while `r sum(xx$unverified_tags)` remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier.
-
-Among target seabird taxa, performance is generally poor across species, with high false positive rates observed even within the reviewed subset. TUPU had the largest number of detections (`r xx |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r xx |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; all reviewed tags were reassigned, yielding a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1) `. RHAU showed a similarly high error rate, with `r xx |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1) `. ANMU also showed complete misclassification within the reviewed subset, with `r xx |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags all reassigned, corresponding to a false positive rate of `r scales::percent(xx |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1) `, and `r xx |> filter(source_species_code == "ANMU") |> pull(unverified_tags)` detections remaining unreviewed.
-
-MAMU and COMU are characterised by substantial uncertainty due to large numbers of unverified detections. For MAMU, `r xx |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, while COMU has `r xx |> filter(source_species_code == "COMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "COMU") |> pull(total_tags)` unverified. Within the small verified subsets, all reviewed detections were reassigned, producing verified false positive rates of `r scales::percent(xx |> filter(source_species_code == "MAMU") |> pull(fp_rate_verified), accuracy = 1) ` and `r scales::percent(xx |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1) ` respectively; however, these estimates are highly uncertain given the very small number of verified tags.
-
-CAAU currently has no verified tags (`r xx |> filter(source_species_code == "CAAU") |> pull(verified_tags)`), and therefore no performance estimate can be derived.
-
-Non-seabird reassignment categories collectively account for `r xx |> filter(source_species_code %in% c("NOISE","HUMVOC","UNIN","HETH","PAWR","TOWA","UNBI")) |> pull(total_tags) |> sum()` tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with `r xx |> filter(source_species_code == "NOISE") |> pull(total_tags)` tags, followed by UNIN with `r xx |> filter(source_species_code == "UNIN") |> pull(total_tags)`, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.
+Across all `r sum(xx$total_tags)` tags assessed, `r sum(xx$verified_tags)` (`r scales::percent(sum(xx$verified_tags) / sum(xx$total_tags), accuracy = 1)`) have been manually verified, while `r sum(xx$unverified_tags)` remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier. Among target seabird taxa, performance varies substantially across species. TUPU had the largest number of detections (`r xx |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r xx |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; all reviewed detections were reassigned, yielding a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1)`. RHAU showed similarly high error rates, with `r xx |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1)`. ANMU also exhibited strong misclassification within the reviewed subset, with `r xx |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1)`, with a small number of detections (`r xx |> filter(source_species_code == "ANMU") |> pull(unverified_tags)`) remaining unreviewed. MAMU and COMU remain highly uncertain due to large proportions of unverified detections. For MAMU, `r xx |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, and all reviewed detections were reassigned (100% verified false positives). COMU shows a lower but still elevated verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1)`, with `r xx |> filter(source_species_code == "COMU") |> pull(unverified_tags)` unverified tags remaining. CAAU is now represented by a small verified sample (`r xx |> filter(source_species_code == "CAAU") |> pull(verified_tags)` tags), all of which were correctly classified as true positives, resulting in a verified false positive rate of 0%. However, the majority of detections (`r xx |> filter(source_species_code == "CAAU") |> pull(unverified_tags)`) remain unreviewed, limiting inference. PFSH shows no misclassification within the verified subset (`r xx |> filter(source_species_code == "PFSH") |> pull(verified_tags)` verified tags, all true positives), although a substantial number of detections (`r xx |> filter(source_species_code == "PFSH") |> pull(unverified_tags)`) remain unverified, meaning performance may change with full review. BLOY similarly demonstrates perfect performance in the reviewed subset, with `r xx |> filter(source_species_code == "BLOY") |> pull(verified_tags)` verified tags and no false positives, although `r xx |> filter(source_species_code == "BLOY") |> pull(unverified_tags)` detections remain unverified. Non-seabird reassignment categories collectively account for `r xx |> filter(source_species_code %in% c("NOISE","HUMVOC","UNIN","HETH","PAWR","TOWA","UNBI")) |> pull(total_tags) |> sum()` tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with `r xx |> filter(source_species_code == "NOISE") |> pull(total_tags)`, followed by UNIN with `r xx |> filter(source_species_code == "UNIN") |> pull(total_tags)`, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.
 
 ```{r}
 #| echo: false
@@ -859,6 +852,7 @@ audit_local <- function(task_id) {
     rename(target_species_code = species_code, target_species_common_name = species_common_name) |>
     select(-ar_unique_name)
 }
+
 aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n = Inf) {
   
   group_by <- match.arg(group_by)
@@ -901,7 +895,7 @@ aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n =
 
 speciess <- wt_get_species() |> select(species_code, species_id, species_common_name)
 
-xx <- wt_get_view("project_aru_tasks", project = ) |>
+xx <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
   pull(taskId) |>
@@ -940,7 +934,9 @@ group_by(source_species_code, source_species_common_name) |>
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds
 
-kable(xx)
+xx |>
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+  datatable()
 
 ```
 
