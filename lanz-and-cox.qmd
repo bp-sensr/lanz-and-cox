@@ -96,7 +96,7 @@ Passive acoustic monitoring was conducted on Lanz and Cox Islands to characteriz
 
 # Land Acknowledgement
 
-The land and sea in the Scott Islands are located within the territories of the Quatsino and Tlatlasikwala First Nations. BC Parks and Environment and Climate Change Canada – Canadian Wildlife Service are working in partnership with Quatsino and Tlatlasikwala First Nations and for this part of the larger project, they would like to express their gratitude to T̕łat̕łasikwa̱la First Nation member Anne Wilson and Quatsino First Nation member Graem Hall for providing in-field support during deployment and collection of audio recording units on Lanz and Cox Islands.
+The land and sea in the Scott Islands are located within the territories of the Quatsino and T̕łat̕łasikwa̱la First Nations. BC Parks and Environment and Climate Change Canada – Canadian Wildlife Service are working in partnership with Quatsino and T̕łat̕łasikwa̱la First Nations and for this part of the larger project, they would like to express their gratitude to T̕łat̕łasikwa̱la First Nation member Anne Wilson and Quatsino First Nation Guardians, Graem Hall and Damien Walkus, for providing in-field support during deployment and collection of audio recordings on Lanz and Cox Islands. A special thanks to Quatsino First Nation Coordinators, Lyubava Erko and Suzanne Hopkinson and T̕łat̕łasikwa̱la First Nation consultants, Amy Krull and David Steele for facilitating field support.
 
 # Funding Acknowledgement
 
@@ -971,6 +971,8 @@ Heatmap of seabird activity can be found at @fig-heatmap-seabirds. Detection int
 #| eval: false
 #| message: false
 #| include: true
+
+bcsi_he2_all <- wt_download_report(4346, 'ARU', 'tag')
 
 # ── 1. Load & prep coastline ──────────────────────────────────────────────────
 bc_coast <- read_sf("/users/alexandremacphail/desktop/coast/lhy_000h16a_e.shp") |>
