@@ -770,7 +770,7 @@ lac_locs2 <- lac_locs |>
 
 ```{r}
 #| echo: false
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| include: true
@@ -975,7 +975,6 @@ Heatmap of seabird activity can be found at @fig-heatmap-seabirds. Detection int
 
 bcsi_he2_all <- wt_download_report(4346, 'ARU', 'tag')
 
-# ── 1. Load & prep coastline ──────────────────────────────────────────────────
 bc_coast <- read_sf("/users/alexandremacphail/desktop/coast/lhy_000h16a_e.shp") |>
   st_make_valid()
 
@@ -996,7 +995,6 @@ bbox_scott <- bcsi_he2_all |>
 bc_4326 <- st_transform(bc_coast |> filter(PRUID == 59), 4326)
 bbsc <- st_crop(bc_4326, bbox_scott)
 
-# ── 2. Extract island polygons ────────────────────────────────────────────────
 coast_poly <- bbsc |> summarise(geometry = st_union(geometry))
 coastline  <- st_boundary(coast_poly) |> st_cast("LINESTRING")
 
@@ -1010,11 +1008,9 @@ scott_islands <- coastline |>
 
 st_write(scott_islands, "/users/alexandremacphail/desktop/scott_islands.shp", delete_dsn = TRUE)
 
-# ── 3. Project islands ────────────────────────────────────────────────────────
 islands_proj  <- st_transform(scott_islands, 32610)
 islands_vect  <- vect(islands_proj)
 
-# ── 4. Build bird points & clip to islands ────────────────────────────────────
 birds_sf <- bcsi_he2_all |>
   left_join(lac_locs, by = "location") |>
   filter(!is.na(latitude), !is.na(longitude)) |>
@@ -1027,7 +1023,6 @@ birds_proj <- birds_sf |>
   st_intersection(st_transform(scott_islands, 4326)) |>
   st_transform(32610)
 
-# ── 5. Build island-masked grid ───────────────────────────────────────────────
 r_grid <- rast(ext(islands_vect), resolution = 50)
 crs(r_grid) <- crs(islands_vect)
 values(r_grid) <- 1
@@ -1036,7 +1031,6 @@ r_grid <- mask(r_grid, islands_vect)
 grid_df <- as.data.frame(r_grid, xy = TRUE) |>
   select(x, y)
 
-# ── 6. IDW interpolation ──────────────────────────────────────────────────────
 birds_df <- st_coordinates(birds_proj) |>
   as.data.frame() |>
   mutate(counts = birds_proj$counts)
@@ -1069,7 +1063,6 @@ bcsi_coords <- bcsi_sf2 |>
   mutate(x = st_coordinates(geometry)[,1],
          y = st_coordinates(geometry)[,2])
 
-# ── 7. Plot ───────────────────────────────────────────────────────────────────
 ggplot() +
   geom_tile(data = grid_df, aes(x = x, y = y, fill = intensity)) +
   geom_sf(data = islands_proj, fill = NA, colour = "black", linewidth = 0.4) +
