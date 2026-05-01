@@ -919,13 +919,14 @@ speciess <- wt_get_species() |> select(species_code, species_id, species_common_
 xx <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
+  dplyr::slice(1:50) |>
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
   purrr::list_rbind() |>
-  select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
+  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
   distinct() |>
-  left_join(wt_download_report(4346, 'ARU', 'tag') |> select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
+  left_join(wt_download_report(4346, 'ARU', 'tag') |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
 group_by(source_species_code, source_species_common_name) |>
   summarise(
     total_tags        = n_distinct(ar_tag_id),
