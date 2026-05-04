@@ -91,7 +91,7 @@ This report is dynamically generated, meaning its results may evolve with the ad
 
 # Abstract
 
-Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous recording units (ARUs) were deployed at `r length(unique(bcsi_locs$location))` locations and analyzed using a combination of machine-learning algorithms and expert validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
+Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous recording units (ARUs) were deployed at `r length(unique(bcsi_locs$location))` locations and analyzed using a combination of machine-learning algorithms and expert human validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
 
 # Land Acknowledgement
 
@@ -105,13 +105,13 @@ This project was funded in part by the BC License Plate program.
 
 # Introduction
 
-Lanz and Cox Islands support important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators. As part of a broader restoration initiative, passive acoustic monitoring was implemented to document avian community composition. Autonomous recording units (ARUs) were deployed across both islands over three breeding seasons to capture vocal activity of seabirds and songbirds. Acoustic data were processed using the WildTrax (@macphail2026wildtrax) data management platform in combination with BirdNET (@kahl2021birdnet) and HawkEars (@huus2025hawkears) machine-learning algorithms, with detections verified using expert review informed by prior experience in marine acoustic environments. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline for monitoring that can be compared to assess other project outcomes and ecological recovery.
+Lanz and Cox Islands are part of the Scott Islands Provincial Park and the Scott Islands Marine National Wildlife Area, the largest national wildlife area in Canada. The area protects important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators. As part of a broader initiative, passive acoustic monitoring was implemented to document avian community composition. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline for monitoring that can be compared to assess other project outcomes and ecological recovery.
 
 # Methods
 
 ## Data collection
 
-ARUs were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in the winter of 2025-26. Sites were accessed via helicopter. Recordings were collected on a schedule of recording every five minutes every 15 minutes at 24000 Hz. A total of `r nrow(bcsi_recs)` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data (@fig-bcsi-recs).
+Autonomous recording units (ARUs; @aru-overview) were deployed in three stages between 2024 and 2025 across Lanz and Cox Islands (@fig-aru-monitoring-locations), with the final data retrievals taking place in March 2026. Sites were accessed via helicopter. Recordings were collected on a schedule of recording for five minutes every 15 minutes at 44100 Hz. A total of `r nrow(bcsi_recs) |> prettyNum(big.mark = ",")` recordings were collected totalling `r bcsi_recs |> summarise(sum = round(sum(recording_duration) / 3600)) |> pull(sum) |> prettyNum(big.mark = ",")` audio hours of data (@fig-bcsi-recs).
 
 ```{r}
 #| echo: false
@@ -237,15 +237,15 @@ bcsi_recs |>
 
 ## Data management, processing and quality control
 
-All recordings were uploaded to [WildTrax](https://wildtrax.ca) in order for the data to be accessible and stored. Locations name were confirmed against the deployment information to ensure data from each location was consistently named across years.
+Acoustic data were uploaded and processed using WildTrax (@macphail2026wildtrax), with detections verified using expert review informed by prior experience in marine acoustic environments. Location names were confirmed against the deployment information to ensure data from each location was consistently named and aggregated from each deployment.
 
 ## Community data processing
 
-For each sampling location and year, a total of nine autonomous recording unit (ARU) recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns. Coastal proximity may reduce ARU detection effectiveness, as wave action and wind-driven noise can mask vocalizations and shrink effective detection distances (@pijankowski2011landscape). We therefore examined whether distance to the nearest coastline predicted observed species richness across monitoring locations. We also compared geophonic acoustic indices (@towsey2017calculation) against WildTrax noise metrics to establish thresholds for task exclusion and to characterize background noise conditions at each site.
+For each sampling location and year, a total of nine recordings, each 3 minutes in duration, were analyzed to characterize the songbird community. All vocalizing species were identified, and the abundance of each species was estimated using a count-removal framework (@farnsworth2002removal) based on time-to-first-detection, which helps reduce positive bias associated with repeated detections of the same individual within a recording. Recordings were intentionally distributed across diel periods to capture variation in vocal activity. Five recordings were selected during the dawn period (04:00–07:59), when songbird detectability is typically highest. Two recordings were selected during dusk (19:00–22:59), and two during the night (23:00–03:59), allowing for detection of crepuscular or nocturnally active species and providing a more complete representation of the avian community. This standardized temporal sampling design ensured consistent effort across locations and years while maximizing detectability across species with differing activity patterns. 
+
+As coastal proximity may reduce species detection effectiveness, as wave action and wind-driven noise can mask vocalizations and shrink effective detection distances (@pijankowski2011landscape), we examined whether distance and cardinal to the nearest coastline predicted observed species richness across monitoring locations. We also compared geophonic acoustic indices (@towsey2017calculation) against WildTrax noise metrics to establish thresholds for task exclusion and to characterize background noise conditions at each site. We modeled maximum noise level as an ordinal response (Low \< Medium \< High \< Extreme) using a cumulative link model with distance to coast and coastline orientation (sine/cosine transformation) as predictors.
 
 ## Use of automated classifiers on seabirds
-
-We first wanted to assess the accuracy of the current version of the HawkEars classifier for three focal species in the group: Common Murre, Marbled Murrelet, and Black Oystercatcher. We extracted all recordings from WildTrax in which the classifier detected these species with a mean score of \~0.33 used. A human reviewer then verified each flagged task, confirming detections as true positives (TP) where the species was audible, or false positives (FP) where no supporting vocalization could be identified. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the wildrtrax R package to calculate precision, recall, and F-score across a range of score thresholds. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion.
 
 ```{r}
 #| echo: false
@@ -267,18 +267,18 @@ bcsi_seabirds[[1]] |>
 eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
 # wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
-
-Next, we expanded the evaluation of classifier performance using HawkEars 2.0. This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set \[ \]. We conducted a structured verification of outputs from HawkEars 2.0 by manually reviewing detections. We also identified systematic misclassifications, and evaluate how the expanded species list influenced both true positive retention and false positive rates.
+  
+We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal species in the group for which the classifier already possesed species: Common Murre (*Uria aalge* ; COMU), Marbled Murrelet (*Brachyramphus marmoratus* ; MAMU), and Black Oystercatcher (*Haematopus bachmani* ; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, yielded mean score of 0.33 +/- 0.21. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion. Next, we expanded the evaluation of classifier performance using HawkEars 2.0. This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HawkEars 2.0 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates.
 
 ## Seabird relative abundance
 
-Seabird detection locations were spatially intersected with island boundary polygons derived from the Canada-wide coastal shapefile \[REF\]. Detection intensity across each island was estimated using Inverse Distance Weighting (IDW) interpolation using the `gstat` R package (@pebesma2015package). For each survey location, total seabird detections were summed across all species in the target assemblage. A regular 50 m resolution grid was generated across the island extents and masked to land area only, ensuring interpolation was strictly constrained within island boundaries. IDW was computed at each grid cell as a distance-weighted mean of all detection point values, using an inverse square distance weighting function (power parameter = 2). This approach produces a continuous surface where predicted intensity at any location is most strongly influenced by nearby detection points and decays with increasing distance. No landcover covariates were used in the interpolation.
+Positive seabird detection locations were spatially intersected with island boundary polygons derived from the [Canada Waters 2016 boundary file](https://open.canada.ca/data/en/dataset/6c78fb2f-d23b-45b4-b3af-cc6f6cc4fff8). Detection intensity across each island was estimated using inverse distance weighting (IDW) interpolation using the `gstat` R package (@pebesma2015package). For each survey location, total seabird detections were summed across all species in the target assemblage. A regular 50-m resolution grid was generated across the island extents and masked to land area only, ensuring interpolation was strictly constrained within island boundaries. IDW was computed at each grid cell as a distance-weighted mean of all detection point values, using an inverse square distance weighting function (power parameter = 2). This approach produces a continuous surface where predicted intensity at any location is most strongly influenced by nearby detection points and decays with increasing distance. No landcover covariates were used in the interpolation.
 
 # Results
 
 ## Songbird species richness and diversity
 
-A total of `r nrow(distinct_spp)` species were found with a summary of detections found at @tbl-spp-summary. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon).
+A total of `r nrow(distinct_spp)` species were found with a summary of detections found at @tbl-spp-summary. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon). No significant differences in species richness or Shannon's diversity was obsvered between years despite differences in individual location metrics. This can be explained by the variability in detection of certain species and the availability of individual species for vocalization. 
 
 ```{r}
 #| warning: false
@@ -453,11 +453,11 @@ bcsi_seasonal |>
 
 ```
 
-### Noise effects
+## Noise effects
 
-Noisier recordings captured fewer seabirds (@fig-ind-noise). At Low and Medium noise levels, recorders typically detected around 5 individuals per recording, while High and Extreme noise levels roughly halved that — dropping to medians of approximately 3 and 2 individuals respectively. At the noisiest sites, many recordings picked up no seabirds at all. Occasional bursts of high detections (up to 20 individuals) did occur even under noisy conditions, but these were the exception rather than the rule. Not all sites experienced the same noise conditions (@fig-noise-loc). Most DC sites were consistently loud, with the majority reaching High noise levels and DC13 and DC15 hitting Extreme — the worst in the dataset. DL sites were generally quieter, with most sitting around Medium noise, though DL02, DL11, DL12, and DL15 also reached High levels. DL06 stood out as the quietest location overall. Several sites also fluctuated across noise categories over the survey period, meaning detection conditions were not always consistent even within a single location. The systematically higher noise at DC sites likely explains some of the lower and more variable seabird detections recorded there compared to DL sites.
+Noisier recordings captured fewer birds (@fig-ind-noise). At Low and Medium noise levels, recorders typically detected around 5 individuals per recording, while High and Extreme noise levels roughly halved that, dropping to medians of approximately 3 and 2 individuals respectively. At the noisiest sites, many recordings picked up no birds at all. Occasional bursts of high detections (up to 20 individuals) did occur even under noisy conditions, but these were the notable exception. Not all sites experienced the same noise conditions (@fig-noise-loc). Most DC sites were consistently loud, with the majority reaching High noise levels and DC13 and DC15 hitting Extreme. DL sites were generally quieter, with most sitting around Medium noise, though DL02, DL11, DL12, and DL15 also reached High levels. DL06 stood out as the quietest location overall. Several sites also fluctuated across noise categories over the survey period, meaning detection conditions were not always consistent even within a single location. The systematically higher noise at DC sites likely explains some of the lower and more variable seabird detections recorded there compared to DL sites.
 
-We modeled maximum noise level as an ordinal response (Low \< Medium \< High \< Extreme) using a cumulative link model with distance to coast and coastline orientation (sine/cosine transformation) as predictors. Island identity did not significantly improve model fit (ΔAIC = 0.07, p = 0.16), nor was there evidence for an interaction between island and distance (ΔAIC = 1.94, p = 0.79), indicating that the relationship between distance to coast and noise level was consistent across islands. Distance to coast showed a clear shift in the probability distribution across noise categories (@fig-noise-distance), with the probability of High noise declining substantially with increasing distance, from \~45% at 50 m to \~15–20% near 750 m. In contrast, the probability of Low noise increased steadily with distance, rising from \~5–10% near the coast to \~30% inland. Medium noise remained the most probable category across most distances, peaking around \~50–55% at intermediate distances (\~600–800 m), while Extreme noise was consistently rare and declined slightly with distance (\~10% to \<5%). Coast direction did not appear to play an important role (@fig-noise-direction). Overall, this pattern indicates a gradient from higher to lower noise environments moving inland, with the strongest transition occurring between High and Low categories.
+Island identity did not significantly improve model fit (ΔAIC = 0.07, p = 0.16), nor was there evidence for an interaction between island and distance (ΔAIC = 1.94, p = 0.79), indicating that the relationship between distance to coast and noise level was consistent across islands. Distance to coast showed a clear shift in the probability distribution across noise categories (@fig-noise-distance), with the probability of High noise declining substantially with increasing distance, from \~45% at 50 m to \~15–20% near 750 m. In contrast, the probability of Low noise increased steadily with distance, rising from \~5–10% near the coast to \~30% inland. Medium noise remained the most probable category across most distances, peaking around \~50–55% at intermediate distances (\~600–800 m), while Extreme noise was consistently rare and declined slightly with distance (\~10% to \<5%). Coast direction did not appear to play an important role (@fig-noise-direction).
 
 ```{r}
 #| echo: false
@@ -599,7 +599,7 @@ anova(m_full_island, m_interaction)
 
 summary(m_full)
 
-Anova(m_full, type = "III")
+anova(m_full, type = "III")
 
 pred_dist <- ggpredict(
   m_full,
@@ -694,9 +694,7 @@ ggplot(pred_dir,
 
 ```
 
-## Classifier results
-
-### Evaluation of HawkEars v1.0.8
+## Evaluation of HawkEars v1.0.8
 
 Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (\~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching \~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
 
@@ -710,7 +708,7 @@ Precision-recall curves were generated to evaluate classifier performance across
 #| fig-cap: HawkEars 1.0.8 performance evaluation
 #| label: fig-he-perform
 
-wt_classifier_threshold(eval)
+#wt_classifier_threshold(eval)
 
 ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
   geom_smooth() +
@@ -721,11 +719,9 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 
 ```
 
-### HawkEars 2.0
+## HawkEars 2.0
 
-Initial runs of HawkEars 2.0 were conducted yielding seabird detections in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset, with raw data visible in @fig-raw-he2. MAMU had the most HawkEars detections at most DC and DL sites. It had more high confidence (0.75 - 1.0) detections than the other seabirds. CAAU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores.
-
-Leach's Storm-petrels, Black-footed Albatross and Short-tailed Albatross were not included in the HawkEars 2.0 model due to limited public recordings to use for training. These species may be included in future HawkEars models if more/better training data can lead to better results.
+Initial runs of HawkEars 2.0 were conducted yielding seabird detections (`r nrow(bcsi_he2)`) in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset, with raw data visible in @fig-raw-he2. MAMU had the most HawkEars detections at most DC and DL sites. It had more high confidence (0.75 - 1.0) detections than the other seabirds. CAAU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores. Leach's Storm-petrels (LESP), Black-footed Albatross (BFAB) and Short-tailed Albatross (STAB) were not included in the HawkEars 2.0 model due to limited accessible and public recordings to use for training. These species may be included in future HawkEars models if more or better training data is available. 
 
 ```{r}
 #| echo: false
@@ -919,7 +915,6 @@ speciess <- wt_get_species() |> select(species_code, species_id, species_common_
 xx <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(1:50) |>
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
@@ -1084,4 +1079,16 @@ ggplot() +
 
 ```
 
-## Discussion and recommendations
+# Discussion and recommendations
+
+## Acoustic classifier performance and seabirds
+
+This program produced a dataset of sufficient resolution to support long-term passive monitoring programs, offering a scalable and repeatable method for processing large volumes of acoustic data. Misclassification rates and false positives remain an inherent limitation of automated classifiers, particularly in field conditions where behavioural overlap between sound categories is common. Seabirds frequently produce detectable acoustic signals across multiple behavioural states simultaneously — vocalisation, preening, and on-water activity often co-occur, complicating clean categorical assignment (@cerqueira2025automated). This reflects the ecological realism of field recordings rather than a failure of the classification approach, and should be accounted for when interpreting detection outputs. For future long-term deployments, a sampling rate of 22 kHz is likely sufficient given that the dominant frequencies of seabird vocalisations typically fall below 10 kHz, which would reduce storage requirements and extend battery life without meaningful loss of biological signal (@podolskiy2024acoustic).
+
+## Seabird abundance measurements
+
+This study does not attempt to derive absolute abundance or population size estimates for Lanz and Cox islands; however, the dataset provides a foundation for such analyses in future work. Presence–absence detections can be used as a basis for occupancy modelling or relative abundance indices, particularly when combined with spatially replicated recorder deployments. Notably, the majority of detections in this dataset consisted of single-individual vocalizations (n = 1 per detection event), suggesting that call rate may serve as a proxy for local activity levels rather than group size. Mapping the spatial distribution of detections across sites would allow identification of acoustic hotspots, which could inform targeted survey efforts. Integrating detection data with diel activity patterns (@podolskiy2024acoustic) may further clarify whether observed variation in call rates reflects changes in abundance, behaviour, or both.
+
+## Coastal monitoring
+
+Passive acoustic monitoring in high-geophonic-noise environments presents a significant methodological challenge, as abiotic noise sources including wave action, wind, and hydrological activity, can mask biological signals across relevant frequency ranges. The present dataset indicates a gradient in background noise intensity from coastal to inland sites, with the most pronounced transition occurring between the High and Low noise categories. While geophonic noise levels did not directly predict seabird detection rates, their pervasive influence on signal-to-noise ratios warrants careful consideration in site selection and recorder placement. Monitoring stations situated in high-noise environments risk systematic underdetection of target species, potentially biasing occupancy and abundance estimates if not corrected for in subsequent analyses.
