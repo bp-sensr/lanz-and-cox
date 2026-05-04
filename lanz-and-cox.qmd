@@ -959,7 +959,7 @@ xx |>
 
 ## Seabird relative abundance
 
-Heatmap of seabird activity can be found at @fig-heatmap-seabirds. Detection intensity across the Scott Islands shows strong spatial clustering concentrated in the western portion of the larger northwestern island, with two clear hotspots in the northwest and west-central areas reaching peak intensity values above 60. Intensity declines steeply eastward across that island. The smaller southeastern island shows comparatively lower and more uniform detection intensity throughout, with a notable low-intensity zone in its south-central interior, suggesting either lower actual bird activity or reduced survey coverage in that area.
+Spatial patterns of seabird relative abundance across the Scott Islands are shown in @fig-heatmap-seabirds. Detection intensity exhibited strong spatial clustering, with activity concentrated predominantly in the northwestern portion of Lanz Island. Two distinct hotspots were identified in the northwest and west-central areas of Lanz Island, with intensity declining steeply eastward across the island. Cox Island displayed comparatively lower and more spatially uniform detection intensity overall, though notable areas of elevated abundance were observed in both the western and eastern portions of the island.
 
 ```{r}
 #| warning: false
@@ -1087,7 +1087,7 @@ This program produced a dataset of sufficient resolution to support long-term pa
 
 ## Seabird abundance measurements
 
-This study does not attempt to derive absolute abundance or population size estimates for Lanz and Cox islands; however, the dataset provides a foundation for such analyses in future work. Presence–absence detections can be used as a basis for occupancy modelling or relative abundance indices, particularly when combined with spatially replicated recorder deployments. Notably, the majority of detections in this dataset consisted of single-individual vocalizations (n = 1 per detection event), suggesting that call rate may serve as a proxy for local activity levels rather than group size. Mapping the spatial distribution of detections across sites would allow identification of acoustic hotspots, which could inform targeted survey efforts. Integrating detection data with diel activity patterns (@podolskiy2024acoustic) may further clarify whether observed variation in call rates reflects changes in abundance, behaviour, or both.
+This study does not attempt to derive absolute abundance or population size estimates for Lanz and Cox islands; however, the dataset provides a foundation for such analyses in future work. Presence–absence detections can be used as a basis for occupancy modelling or relative abundance indices, particularly when combined with spatially replicated recorder deployments. Notably, the majority of detections in this dataset consisted of single-individual vocalizations (n = 1 per detection event), suggesting that call rate may serve as a proxy for local activity levels rather than group size. The strait between the two islands also appeared to represent a zone of relatively elevated activity, potentially reflecting potential inter-island movement or shared foraging habitat. Mapping the spatial distribution of detections across sites would allow identification of acoustic hotspots, which could inform targeted survey efforts. Integrating detection data with diel activity patterns (@podolskiy2024acoustic) may further clarify whether observed variation in call rates reflects changes in abundance, behaviour, or both.
 
 ## Coastal monitoring
 
