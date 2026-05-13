@@ -63,7 +63,7 @@ library(gstat)
 library(ggrepel)
 library(terra)
 
-wildrtrax::wt_auth()
+#wildrtrax::wt_auth()
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
