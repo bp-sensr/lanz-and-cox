@@ -63,7 +63,7 @@ library(gstat)
 library(ggrepel)
 library(terra)
 
-#wildrtrax::wt_auth(force = TRUE)
+wildrtrax::wt_auth()
 
 load("lanz-and-cox.RData")
 #save.image("lanz-and-cox.RData")
@@ -766,7 +766,9 @@ bcsi_he2 %>%
 
 ```
 
-Across all `r sum(xx$total_tags)` tags assessed, `r sum(xx$verified_tags)` (`r scales::percent(sum(xx$verified_tags) / sum(xx$total_tags), accuracy = 1)`) have been manually verified, while `r sum(xx$unverified_tags)` remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier. Among target seabird taxa, performance varies substantially across species. TUPU had the largest number of detections (`r xx |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r xx |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; all reviewed detections were reassigned, yielding a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1)`. RHAU showed similarly high error rates, with `r xx |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1)`. ANMU also exhibited strong misclassification within the reviewed subset, with `r xx |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1)`, with a small number of detections (`r xx |> filter(source_species_code == "ANMU") |> pull(unverified_tags)`) remaining unreviewed. MAMU and COMU remain highly uncertain due to large proportions of unverified detections. For MAMU, `r xx |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, and all reviewed detections were reassigned (100% verified false positives). COMU shows a lower but still elevated verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1)`, with `r xx |> filter(source_species_code == "COMU") |> pull(unverified_tags)` unverified tags remaining. CAAU is now represented by a small verified sample (`r xx |> filter(source_species_code == "CAAU") |> pull(verified_tags)` tags), all of which were correctly classified as true positives, resulting in a verified false positive rate of 0%. However, the majority of detections (`r xx |> filter(source_species_code == "CAAU") |> pull(unverified_tags)`) remain unreviewed, limiting inference. PFSH shows no misclassification within the verified subset (`r xx |> filter(source_species_code == "PFSH") |> pull(verified_tags)` verified tags, all true positives), although a substantial number of detections (`r xx |> filter(source_species_code == "PFSH") |> pull(unverified_tags)`) remain unverified, meaning performance may change with full review. BLOY similarly demonstrates perfect performance in the reviewed subset, with `r xx |> filter(source_species_code == "BLOY") |> pull(verified_tags)` verified tags and no false positives, although `r xx |> filter(source_species_code == "BLOY") |> pull(unverified_tags)` detections remain unverified. Non-seabird reassignment categories collectively account for `r xx |> filter(source_species_code %in% c("NOISE","HUMVOC","UNIN","HETH","PAWR","TOWA","UNBI")) |> pull(total_tags) |> sum()` tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with `r xx |> filter(source_species_code == "NOISE") |> pull(total_tags)`, followed by UNIN with `r xx |> filter(source_species_code == "UNIN") |> pull(total_tags)`, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.
+Here it is with all inline R chunks properly backtick-wrapped:
+
+Across all `r sum(xx$total_tags)` tags assessed, `r sum(xx$verified_tags)` (`r scales::percent(sum(xx$verified_tags) / sum(xx$total_tags), accuracy = 1)`) have been manually verified, while `r sum(xx$unverified_tags)` remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier. Among target seabird taxa, performance varies substantially across species. TUPU had the largest number of detections (`r xx |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r xx |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; the majority of reviewed detections were reassigned, yielding a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1)`. RHAU showed similarly high error rates, with `r xx |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1)`. ANMU also exhibited strong misclassification within the reviewed subset, with `r xx |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1)`, with a small number of detections (`r xx |> filter(source_species_code == "ANMU") |> pull(unverified_tags)`) remaining unreviewed. MAMU and COMU remain highly uncertain due to large proportions of unverified detections. For MAMU, `r xx |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, and the majority of reviewed detections were reassigned (`r scales::percent(xx |> filter(source_species_code == "MAMU") |> pull(fp_rate_verified), accuracy = 1)` verified false positives). COMU shows a lower but still elevated verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1)`, with `r xx |> filter(source_species_code == "COMU") |> pull(unverified_tags)` unverified tags remaining. CAAU is now represented by a verified sample of `r xx |> filter(source_species_code == "CAAU") |> pull(verified_tags)` tags, the vast majority of which were reassigned as false positives, resulting in a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "CAAU") |> pull(fp_rate_verified), accuracy = 1)`. The majority of detections (`r xx |> filter(source_species_code == "CAAU") |> pull(unverified_tags)`) remain unreviewed, limiting inference. PFSH shows minimal misclassification within the verified subset (`r xx |> filter(source_species_code == "PFSH") |> pull(verified_tags)` verified tags, `r scales::percent(xx |> filter(source_species_code == "PFSH") |> pull(fp_rate_verified), accuracy = 1)` false positive rate), although a substantial number of detections (`r xx |> filter(source_species_code == "PFSH") |> pull(unverified_tags)`) remain unverified, meaning performance may change with full review. BLOY similarly demonstrates strong performance in the reviewed subset, with `r xx |> filter(source_species_code == "BLOY") |> pull(verified_tags)` verified tag and no false positives, although `r xx |> filter(source_species_code == "BLOY") |> pull(unverified_tags)` detections remain unverified. Non-seabird reassignment categories collectively account for `r xx |> filter(source_species_code %in% c("NOISE","HUMVOC","UNIN","HETH","PAWR","TOWA","UNBI")) |> pull(total_tags) |> sum()` tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with `r xx |> filter(source_species_code == "NOISE") |> pull(total_tags)` total tags, followed by UNIN with `r xx |> filter(source_species_code == "UNIN") |> pull(total_tags)`, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.
 
 ```{r}
 #| echo: false
@@ -794,7 +796,6 @@ audit_local <- function(task_id) {
     rename(target_species_code = species_code, target_species_common_name = species_common_name) |>
     select(-ar_unique_name)
 }
-
 aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n = Inf) {
   
   group_by <- match.arg(group_by)
@@ -840,7 +841,7 @@ speciess <- wt_get_species() |> select(species_code, species_id, species_common_
 xx <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(1:5000) |>
+  dplyr::slice(1:2000) |>
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
@@ -849,20 +850,99 @@ xx <- wt_get_view("project_aru_tasks", project = 4346) |>
   distinct() |>
   left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
   group_by(source_species_code, source_species_common_name) |>
-  summarise(
-    total_tags        = n_distinct(ar_tag_id),
-    verified_tags     = n_distinct(ar_tag_id[tag_is_verified]),
-    false_positives   = sum(
+  summarise(total_tags = n_distinct(ar_tag_id),
+    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
+    false_positives = sum(
       ar_action == "UPDATE" & 
         source_species_code != target_species_code & 
         tag_is_verified,
       na.rm = TRUE
-    ),
-    fp_rate_verified  = false_positives / verified_tags,
-    tp_rate_verified  = 1 - fp_rate_verified,
-    unverified_tags   = total_tags - verified_tags,
-    fp_rate_upper     = (false_positives + unverified_tags) / total_tags,
-    fp_rate_lower     = false_positives / total_tags,
+    ), fp_rate_verified = false_positives / verified_tags,
+    tp_rate_verified = 1 - fp_rate_verified,
+    unverified_tags = total_tags - verified_tags,
+    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
+    fp_rate_lower = false_positives / total_tags,
+    .groups = "drop"
+  )
+
+xx2 <- wt_get_view("project_aru_tasks", project = 4346) |>
+  unnest_longer(detectedSpeciesIds) |>
+  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
+  dplyr::slice(2001:5000) |>
+  pull(taskId) |>
+  purrr::map(audit_local) |>
+  purrr::keep(\(x) nrow(x) > 0) |>
+  purrr::list_rbind() |>
+  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
+  distinct() |>
+  left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
+  group_by(source_species_code, source_species_common_name) |>
+  summarise(total_tags = n_distinct(ar_tag_id),
+    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
+    false_positives = sum(
+      ar_action == "UPDATE" & 
+        source_species_code != target_species_code & 
+        tag_is_verified,
+      na.rm = TRUE
+    ), fp_rate_verified = false_positives / verified_tags,
+    tp_rate_verified = 1 - fp_rate_verified,
+    unverified_tags = total_tags - verified_tags,
+    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
+    fp_rate_lower = false_positives / total_tags,
+    .groups = "drop"
+  )
+    
+xx3 <- wt_get_view("project_aru_tasks", project = 4346) |>
+  unnest_longer(detectedSpeciesIds) |>
+  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
+  dplyr::slice(5001:10000) |>
+  pull(taskId) |>
+  purrr::map(audit_local) |>
+  purrr::keep(\(x) nrow(x) > 0) |>
+  purrr::list_rbind() |>
+  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
+  distinct() |>
+  left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
+  group_by(source_species_code, source_species_common_name) |>
+  summarise(total_tags = n_distinct(ar_tag_id),
+    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
+    false_positives = sum(
+      ar_action == "UPDATE" & 
+        source_species_code != target_species_code & 
+        tag_is_verified,
+      na.rm = TRUE
+    ), fp_rate_verified = false_positives / verified_tags,
+    tp_rate_verified = 1 - fp_rate_verified,
+    unverified_tags = total_tags - verified_tags,
+    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
+    fp_rate_lower = false_positives / total_tags,
+    .groups = "drop"
+  )
+
+xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
+  unnest_longer(detectedSpeciesIds) |>
+  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
+  dplyr::slice(10001:15000) |>
+  pull(taskId) |>
+  purrr::map(audit_local) |>
+  purrr::keep(\(x) nrow(x) > 0) |>
+  purrr::list_rbind() |>
+  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
+  distinct() |>
+  left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
+  group_by(source_species_code, source_species_common_name) |>
+  summarise(total_tags = n_distinct(ar_tag_id),
+    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
+    false_positives = sum(
+      ar_action == "UPDATE" & 
+        source_species_code != target_species_code & 
+        tag_is_verified,
+      na.rm = TRUE
+    ), fp_rate_verified = false_positives / verified_tags,
+    tp_rate_verified = 1 - fp_rate_verified,
+    unverified_tags = total_tags - verified_tags,
+    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
+    fp_rate_lower = false_positives / total_tags,
     .groups = "drop"
   )
 
@@ -877,7 +957,19 @@ xx <- wt_get_view("project_aru_tasks", project = 4346) |>
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds
 
-xx |>
+bind_rows(xx, xx2, xx3, xx4) |>
+  group_by(source_species_code, source_species_common_name) %>%
+  summarise(
+    total_tags      = sum(total_tags, na.rm = TRUE),
+    verified_tags   = sum(verified_tags, na.rm = TRUE),
+    false_positives = sum(false_positives, na.rm = TRUE),
+    unverified_tags = sum(unverified_tags, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    fp_rate_verified = false_positives / verified_tags,
+    tp_rate_verified = 1 - fp_rate_verified
+  ) |>
   mutate(across(where(is.numeric), ~ round(.x, 2))) |>
   datatable()
 
@@ -980,6 +1072,8 @@ seabird_diel <- bcsi_he2_all |>
 
 ```
 
+
+
 ```{r}
 #| warning: false
 #| echo: false
@@ -1026,7 +1120,11 @@ ggplot(seabird_diel, aes(x=julian)) +
   geom_rug(alpha = 0.3) +
   facet_wrap(~species_code) +
   theme_bw() +
-  xlab("Julian Date") + ylab("Kernel Density Estimate")
+  scale_x_continuous(
+    breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
+    labels = month.abb
+  ) +
+  xlab("Month") + ylab("Kernel Density Estimate")
 
 ```
 
