@@ -155,7 +155,7 @@ if (knitr::is_html_output()) {
 #| label: tbl-loc-summary
 #| tbl-cap: Locations surveyed across years. Ones indicated a deployment in that year for that location
 
-bcsi_locs <- bcsi_main |>
+bcsi_locs <- bcsi_recs |>
   mutate(year = year(recording_date_time)) |>
   select(location, year, latitude, longitude) |>
   distinct() |>
