@@ -11,7 +11,7 @@
 <meta name="author" content="Victoria Berg">
 <meta name="author" content="Erica McClaren">
 <meta name="author" content="Iain Reid">
-<meta name="dcterms.date" content="2026-05-13">
+<meta name="dcterms.date" content="2026-05-14">
 
 <title>Report on the use of passive acoustic monitoring for songbirds and seabirds on Lanz and Cox Islands</title>
 <style>
@@ -186,7 +186,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 13, 2026</p>
+      <p class="date">May 14, 2026</p>
     </div>
   </div>
   
@@ -342,7 +342,7 @@ Figure&nbsp;3: Species richness at forest monitoring locations across years
 </div>
 <div class="cell" data-layout-align="center" data-cap-location="bottom">
 <div class="cell-output-display">
-<div id="fig-shannon" class="quarto-float quarto-figure quarto-figure-center anchored" data-cap-location="bottom" data-fig-align="center">
+<div id="fig-shannon" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-cap-location="bottom">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-shannon-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="lanz-and-cox_files/figure-html/fig-shannon-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
@@ -450,7 +450,7 @@ Figure&nbsp;10: HawkEars 1.0.8 performance evaluation
 </section>
 <section id="hawkears-2.0" class="level2">
 <h2 class="anchored" data-anchor-id="hawkears-2.0">HawkEars 2.0</h2>
-<p>Initial runs of HawkEars 2.0 were conducted yielding seabird detections (109765) in a total of 109765 recordings or 45.13 % of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores. Leach’s Storm-petrels (LESP), Black-footed Albatross (BFAB) and Short-tailed Albatross (STAB) were not included in the HawkEars 2.0 model due to limited accessible and public recordings to use for training. These species may be included in future HawkEars models if more or better training data is available.</p>
+<p>Initial runs of HawkEars 2.0 were conducted yielding 109765 seabird detections in a total of 109765 recordings or 45.13 % of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores. Leach’s Storm-petrels (LESP), Black-footed Albatross (BFAB) and Short-tailed Albatross (STAB) were not included in the HawkEars 2.0 model due to limited accessible and public recordings to use for training. These species may be included in future HawkEars models if more or better training data is available.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div id="fig-raw-he2-proportions" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
@@ -459,13 +459,12 @@ Figure&nbsp;10: HawkEars 1.0.8 performance evaluation
 <img src="lanz-and-cox_files/figure-html/fig-raw-he2-proportions-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-raw-he2-proportions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11: Raw HawkEars 2.0 detections; describes proportion of hits across each locations across classifier scores bins
+Figure&nbsp;11: Species detections across classifier score bins, following manual verification of classifier hits
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Here it is with all inline R chunks properly backtick-wrapped:</p>
 <p>Across all 3050 tags assessed, 2771 (91%) have been manually verified, while 279 remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier. Among target seabird taxa, performance varies substantially across species. TUPU had the largest number of detections (24 total tags), of which 19 were verified; the majority of reviewed detections were reassigned, yielding a verified false positive rate of 95%. RHAU showed similarly high error rates, with 1 verified tags and a false positive rate of 100%. ANMU also exhibited strong misclassification within the reviewed subset, with 32 verified tags and a false positive rate of 94%, with a small number of detections (5) remaining unreviewed. MAMU and COMU remain highly uncertain due to large proportions of unverified detections. For MAMU, 53 of 54 tags remain unverified, and the majority of reviewed detections were reassigned (100% verified false positives). COMU shows a lower but still elevated verified false positive rate of 62%, with 46 unverified tags remaining. CAAU is now represented by a verified sample of 9 tags, the vast majority of which were reassigned as false positives, resulting in a verified false positive rate of 100%. The majority of detections (77) remain unreviewed, limiting inference. PFSH shows minimal misclassification within the verified subset (2540 verified tags, 1% false positive rate), although a substantial number of detections (70) remain unverified, meaning performance may change with full review. BLOY similarly demonstrates strong performance in the reviewed subset, with 0 verified tag and no false positives, although 23 detections remain unverified. Non-seabird reassignment categories collectively account for 93 tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with 73 total tags, followed by UNIN with 4, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.</p>
 <div class="cell">
 <div id="tbl-fp-rates" class="cell quarto-float quarto-figure quarto-figure-center anchored">
