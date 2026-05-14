@@ -12,6 +12,9 @@ format:
     geometry:
       - margin=1in
     papersize: letter
+  docx:
+    toc: true
+    number-sections: true
 navbar: right
 theme: cosmo
 date: "`r format(Sys.time(), '%d %B, %Y')`"
