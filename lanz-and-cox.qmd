@@ -722,7 +722,7 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 
 ## HawkEars 2.0
 
-Initial runs of HawkEars 2.0 were conducted yielding seabird detections (`r nrow(bcsi_he2)`) in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores. Leach's Storm-petrels (LESP), Black-footed Albatross (BFAB) and Short-tailed Albatross (STAB) were not included in the HawkEars 2.0 model due to limited accessible and public recordings to use for training. These species may be included in future HawkEars models if more or better training data is available.
+Initial runs of HawkEars 2.0 were conducted yielding `r nrow(bcsi_he2)` seabird detections in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores. Leach's Storm-petrels (LESP), Black-footed Albatross (BFAB) and Short-tailed Albatross (STAB) were not included in the HawkEars 2.0 model due to limited accessible and public recordings to use for training. These species may be included in future HawkEars models if more or better training data is available.
 
 ```{r}
 #| echo: false
@@ -1071,8 +1071,6 @@ seabird_diel <- bcsi_he2_all |>
   filter(species_code %in% seabirds_codes)
 
 ```
-
-
 
 ```{r}
 #| warning: false
