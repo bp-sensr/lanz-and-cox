@@ -38,7 +38,7 @@ toc-expand: true
 prefer-html: true
 toc-location: left
 styles: styles.css
-github: https://github.com/biodiversitypathways/lanz-and-cox
+github: https://github.com/bp-sensr/lanz-and-cox
 ---
 
 ![](assets/lanz-and-cox-banner.png){style="float:left`;" fig-alt="Lanz and Cox Islands (c) Iain Reid" fig-align="center"}
@@ -797,6 +797,7 @@ audit_local <- function(task_id) {
     rename(target_species_code = species_code, target_species_common_name = species_common_name) |>
     select(-ar_unique_name)
 }
+
 aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n = Inf) {
   
   group_by <- match.arg(group_by)
@@ -920,10 +921,11 @@ xx3 <- wt_get_view("project_aru_tasks", project = 4346) |>
     .groups = "drop"
   )
 
-xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
+tictoc::tic()
+xx9 <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(10001:15000) |>
+  dplyr::slice(35001:40202) |>
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
@@ -946,6 +948,7 @@ xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
     fp_rate_lower = false_positives / total_tags,
     .groups = "drop"
   )
+tictoc::toc()
 
 ```
 
@@ -958,7 +961,7 @@ xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds
 
-bind_rows(xx, xx2, xx3, xx4) |>
+bind_rows(xx) |>
   group_by(source_species_code, source_species_common_name) %>%
   summarise(
     total_tags      = sum(total_tags, na.rm = TRUE),
