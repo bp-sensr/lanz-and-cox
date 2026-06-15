@@ -839,65 +839,11 @@ aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n =
 }
 
 speciess <- wt_get_species() |> select(species_code, species_id, species_common_name)
-
-xx <- wt_get_view("project_aru_tasks", project = 4346) |>
-  unnest_longer(detectedSpeciesIds) |>
-  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(1:2000) |>
-  pull(taskId) |>
-  purrr::map(audit_local) |>
-  purrr::keep(\(x) nrow(x) > 0) |>
-  purrr::list_rbind() |>
-  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
-  distinct() |>
-  left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
-  group_by(source_species_code, source_species_common_name) |>
-  summarise(total_tags = n_distinct(ar_tag_id),
-    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
-    false_positives = sum(
-      ar_action == "UPDATE" & 
-        source_species_code != target_species_code & 
-        tag_is_verified,
-      na.rm = TRUE
-    ), fp_rate_verified = false_positives / verified_tags,
-    tp_rate_verified = 1 - fp_rate_verified,
-    unverified_tags = total_tags - verified_tags,
-    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
-    fp_rate_lower = false_positives / total_tags,
-    .groups = "drop"
-  )
-
-xx2 <- wt_get_view("project_aru_tasks", project = 4346) |>
-  unnest_longer(detectedSpeciesIds) |>
-  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(2001:5000) |>
-  pull(taskId) |>
-  purrr::map(audit_local) |>
-  purrr::keep(\(x) nrow(x) > 0) |>
-  purrr::list_rbind() |>
-  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
-  distinct() |>
-  left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
-  group_by(source_species_code, source_species_common_name) |>
-  summarise(total_tags = n_distinct(ar_tag_id),
-    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
-    false_positives = sum(
-      ar_action == "UPDATE" & 
-        source_species_code != target_species_code & 
-        tag_is_verified,
-      na.rm = TRUE
-    ), fp_rate_verified = false_positives / verified_tags,
-    tp_rate_verified = 1 - fp_rate_verified,
-    unverified_tags = total_tags - verified_tags,
-    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
-    fp_rate_lower = false_positives / total_tags,
-    .groups = "drop"
-  )
     
-xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
+xx8 <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(10001:15000) |>
+  dplyr::slice(35001:40665) |>
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
@@ -921,34 +867,7 @@ xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
     .groups = "drop"
   )
 
-tictoc::tic()
-xx9 <- wt_get_view("project_aru_tasks", project = 4346) |>
-  unnest_longer(detectedSpeciesIds) |>
-  left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(35001:40202) |>
-  pull(taskId) |>
-  purrr::map(audit_local) |>
-  purrr::keep(\(x) nrow(x) > 0) |>
-  purrr::list_rbind() |>
-  dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
-  distinct() |>
-  left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
-  group_by(source_species_code, source_species_common_name) |>
-  summarise(total_tags = n_distinct(ar_tag_id),
-    verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
-    false_positives = sum(
-      ar_action == "UPDATE" & 
-        source_species_code != target_species_code & 
-        tag_is_verified,
-      na.rm = TRUE
-    ), fp_rate_verified = false_positives / verified_tags,
-    tp_rate_verified = 1 - fp_rate_verified,
-    unverified_tags = total_tags - verified_tags,
-    fp_rate_upper = (false_positives + unverified_tags) / total_tags,
-    fp_rate_lower = false_positives / total_tags,
-    .groups = "drop"
-  )
-tictoc::toc()
+
 
 ```
 
@@ -961,7 +880,7 @@ tictoc::toc()
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds
 
-bind_rows(xx, xx2, xx3, xx4) |>
+bind_rows(xx, xx2, xx3, xx4, xx5, xx6, xx7, xx8) |>
   group_by(source_species_code, source_species_common_name) %>%
   summarise(
     total_tags      = sum(total_tags, na.rm = TRUE),
