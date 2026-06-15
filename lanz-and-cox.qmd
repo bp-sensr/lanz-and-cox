@@ -894,10 +894,10 @@ xx2 <- wt_get_view("project_aru_tasks", project = 4346) |>
     .groups = "drop"
   )
     
-xx3 <- wt_get_view("project_aru_tasks", project = 4346) |>
+xx4 <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(5001:10000) |>
+  dplyr::slice(10001:15000) |>
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
@@ -961,7 +961,7 @@ tictoc::toc()
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds
 
-bind_rows(xx) |>
+bind_rows(xx, xx2, xx3, xx4) |>
   group_by(source_species_code, source_species_common_name) %>%
   summarise(
     total_tags      = sum(total_tags, na.rm = TRUE),
