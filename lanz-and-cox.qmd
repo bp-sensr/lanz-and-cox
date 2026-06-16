@@ -272,7 +272,7 @@ eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_s
 # wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
-We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal species in the group for which the classifier already possesed species: Common Murre (*Uria aalge* ; COMU), Marbled Murrelet (*Brachyramphus marmoratus* ; MAMU), and Black Oystercatcher (*Haematopus bachmani* ; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, yielded mean score of 0.33 +/- 0.21. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion. Next, we expanded the evaluation of classifier performance using HawkEars 2.0. This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HawkEars 2.0 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates.
+We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal species in the group for which the classifier already possesed species: Common Murre (*Uria aalge* ; COMU), Marbled Murrelet (*Brachyramphus marmoratus* ; MAMU), and Black Oystercatcher (*Haematopus bachmani* ; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, yielded mean score of 0.33 +/- 0.21. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion. Next, we expanded the evaluation of classifier performance using HawkEars 2.0. This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HawkEars 2.0 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates. 
 
 ## Seabird relative abundance
 
@@ -725,7 +725,7 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 
 ## HawkEars 2.0
 
-Initial runs of HawkEars 2.0 were conducted yielding `r nrow(bcsi_he2)` seabird detections in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores. Leach's Storm-petrels (LESP), Black-footed Albatross (BFAB) and Short-tailed Albatross (STAB) were not included in the HawkEars 2.0 model due to limited accessible and public recordings to use for training. These species may be included in future HawkEars models if more or better training data is available.
+Initial runs of HawkEars 2.0 were conducted yielding `r nrow(bcsi_he2)` seabird detections in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores.
 
 ```{r}
 #| echo: false
@@ -797,7 +797,6 @@ audit_local <- function(task_id) {
     rename(target_species_code = species_code, target_species_common_name = species_common_name) |>
     select(-ar_unique_name)
 }
-
 aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n = Inf) {
   
   group_by <- match.arg(group_by)
@@ -837,17 +836,20 @@ aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n =
       drop_na()
   }
 }
-
 speciess <- wt_get_species() |> select(species_code, species_id, species_common_name)
     
-xx8 <- wt_get_view("project_aru_tasks", project = 4346) |>
+aud <- wt_get_view("project_aru_tasks", project = 4346) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(35001:40665) |>
+  dplyr::slice(1:40665) |> # All the data, but it gets split (see below)
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
-  purrr::list_rbind() |>
+  purrr::list_rbind()
+
+audit_all <- bind_rows(aud1, aud2, aud3, aud4, aud5, aud6, aud7)
+
+audit_all |>
   dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
   distinct() |>
   left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
@@ -866,8 +868,6 @@ xx8 <- wt_get_view("project_aru_tasks", project = 4346) |>
     fp_rate_lower = false_positives / total_tags,
     .groups = "drop"
   )
-
-
 
 ```
 
