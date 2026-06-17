@@ -886,13 +886,37 @@ audit_table <- audit_all_setup |>
 #| fig-cap: Distribution of true and false positives by score for each detection by HawkEars after human validation.
 #| label: fig-he2-final
 
+tag_classification <- audit_all_setup |>
+  group_by(ar_tag_id) |>
+  summarise(
+    source_species_code = first(source_species_code),
+    he2_score = first(he2_score),
+    false_positive = any(
+      ar_action == "UPDATE" &
+        source_species_code != target_species_code,
+      na.rm = TRUE
+    ),
+    verified = any(tag_is_verified),
+    .groups = "drop"
+  ) |>
+  mutate(
+    outcome = case_when(
+      false_positive ~ "False Positive",
+      verified ~ "True Positive",
+      TRUE ~ "Unverified"
+    )
+  )
+
 ggplot(
-  audit_all_setup |> 
-    filter(target_species_code %in% seabirds_codes),
+  tag_classification |>
+    filter(
+      source_species_code %in% seabirds_codes,
+      outcome %in% c("True Positive", "False Positive")
+    ),
   aes(
-    x = target_species_code,
+    x = source_species_code,
     y = he2_score,
-    fill = tag_is_verified
+    fill = outcome
   )
 ) +
   geom_boxplot(position = position_dodge(width = 0.75)) +
@@ -900,7 +924,7 @@ ggplot(
   labs(
     x = "Species",
     y = "HE2 Score",
-    fill = "Verified"
+    fill = "Outcome"
   )
 
 ```
