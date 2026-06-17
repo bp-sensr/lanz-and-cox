@@ -849,10 +849,15 @@ aud <- wt_get_view("project_aru_tasks", project = 4346) |>
 
 audit_all <- bind_rows(aud1, aud2, aud3, aud4, aud5, aud6, aud7)
 
-audit_all |>
+audit_all_setup <- audit_all |>
   dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
   distinct() |>
   left_join(bcsi_he2_all |>  dplyr::select(tag_id, tag_is_verified) |> distinct(), by = c("ar_tag_id" = "tag_id")) |>
+  left_join(bcsi_he2 |> dplyr::select(internal_tag_id, species_individual_comments) |> distinct(), by = c("ar_tag_id" = "internal_tag_id")) |>
+  rename(he2_score = species_individual_comments) |>
+  filter(!is.na(tag_is_verified))
+
+audit_table <- audit_all_setup |>
   group_by(source_species_code, source_species_common_name) |>
   summarise(total_tags = n_distinct(ar_tag_id),
     verified_tags = n_distinct(ar_tag_id[tag_is_verified]),
@@ -872,6 +877,36 @@ audit_all |>
 ```
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-align: center
+#| fig-cap: Distribution of true and false positives by score for each detection by HawkEars after human validation.
+#| label: fig-he2-final
+
+ggplot(
+  audit_all_setup |> 
+    filter(target_species_code %in% seabirds_codes),
+  aes(
+    x = target_species_code,
+    y = he2_score,
+    fill = tag_is_verified
+  )
+) +
+  geom_boxplot(position = position_dodge(width = 0.75)) +
+  theme_bw() +
+  labs(
+    x = "Species",
+    y = "HE2 Score",
+    fill = "Verified"
+  )
+
+```
+
+
+```{r}
 #| warning: false
 #| echo: false
 #| eval: true
@@ -880,7 +915,7 @@ audit_all |>
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds
 
-bind_rows(xx, xx2, xx3, xx4, xx5, xx6, xx7, xx8) |>
+audit_table |>
   group_by(source_species_code, source_species_common_name) %>%
   summarise(
     total_tags      = sum(total_tags, na.rm = TRUE),
@@ -1073,7 +1108,9 @@ ggplot(seabird_diel, aes(x=hour)) +
 
 ## Acoustic classifier performance and seabirds {#sec-disc-classifier}
 
-This program produced a data set of sufficient resolution to support long-term passive monitoring programs, offering a scalable and repeatable method for processing large volumes of acoustic data. Misclassification rates and false positives remain an inherent limitation of automated classifiers, particularly in field conditions where behavioural overlap between sound categories is common. Seabirds frequently produce detectable acoustic signals across multiple behavioural states simultaneously, vocalization, preening, and on-water activity often co-occur, complicating clean categorical assignment (@cerqueira2025automated). This reflects the ecological realism of field recordings rather than a failure of the classification approach, and should be accounted for when interpreting detection outputs. For future long-term deployments, a sampling rate of 22 kHz is likely sufficient given that the dominant frequencies of seabird vocalizations typically fall below 10 kHz, which would reduce storage requirements and extend battery life without meaningful loss of biological signal (@podolskiy2024acoustic). It's worth noting that these classifiers were trained and tested on datasets that included seabirds, but a more reliable assessment of their performance would involve testing them at sites where the species is actually known to be present and successfully breeding.
+This program produced a data set of sufficient resolution to support long-term passive monitoring programs, offering a scalable and repeatable method for processing large volumes of acoustic data. Misclassification rates and false positives remain an inherent limitation of the use of multi-species automated classifiers, particularly in field conditions where behavioural overlap between sound categories is common. Seabirds frequently produce detectable acoustic signals across multiple behavioural states simultaneously, vocalization, preening, and on-water activity often co-occur, complicating clean categorical assignment (@cerqueira2025automated). This reflects the ecological reality of these field recordings rather than a failure of the classification approach, and should be accounted for when interpreting detection outputs. 
+
+For future long-term deployments, a sampling rate of 22 kHz is likely sufficient given that the dominant frequencies of seabird vocalizations typically fall below 10 kHz, which would reduce storage requirements and extend battery life without meaningful loss of biological signal (@podolskiy2024acoustic). It's worth noting that these classifiers were trained and tested on datasets that included seabirds, but a more reliable assessment of their performance would involve testing them at sites where the species is actually known to be present and successfully breeding.
 
 ## Coastal monitoring
 
