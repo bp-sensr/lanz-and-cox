@@ -95,7 +95,7 @@ This report is dynamically generated, meaning its results may evolve with the ad
 
 # Abstract
 
-Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous recording units (ARUs) were deployed at `r length(unique(bcsi_locs$location))` locations and analyzed using a combination of machine-learning algorithms and expert human validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
+Passive acoustic monitoring was conducted on Lanz and Cox Islands to characterize seabird and songbird communities. Autonomous recording units (ARUs) were deployed at `r length(unique(lac_locs$location))` locations and analyzed using a combination of classifiers and expert human validation. This report summarizes species presence, temporal patterns of detection, and relative abundance for seabirds and songbirds, and provides spatial representations of detections across both islands. These results establish a baseline to support evaluation of seabird prospecting activity and future changes in avian communities.
 
 # Land Acknowledgement
 
@@ -109,7 +109,7 @@ This project was funded in part by the BC License Plate program.
 
 # Introduction
 
-Lanz and Cox Islands are part of the Scott Islands Provincial Park and the Scott Islands Marine National Wildlife Area, the largest national wildlife area in Canada. The area protects important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators. As part of a broader initiative, passive acoustic monitoring was implemented to document avian community composition. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and spatial patterns of occurrence. Together, these data provide a baseline for monitoring that can be compared to assess other project outcomes and ecological recovery.
+Lanz and Cox Islands are part of the Scott Islands Provincial Park and the Scott Islands Marine National Wildlife Area, the largest national wildlife area in Canada. The area protects important seabird and songbird habitats, yet populations have been negatively affected by the presence of invasive predators. As part of a broader initiative, passive acoustic monitoring was implemented to document avian community composition. This report presents the results of these analyses, including species detected, timing of detections, relative abundance metrics, and baseline spatial patterns of occurrence.
 
 # Methods
 
@@ -222,7 +222,7 @@ bcsi_recs <- wt_get_sync("organization_recordings", organization = 5853)
 #| message: false
 #| include: true
 #| fig-align: center
-#| fig-cap: Recordings collected from Lanz and Cox Provincial Park ARU Monitoring Program
+#| fig-cap: Cumulative daily recordings collected from Lanz and Cox Provincial Park ARU Monitoring Program
 #| label: fig-bcsi-recs
 
 bcsi_recs |>
@@ -232,8 +232,7 @@ bcsi_recs |>
   geom_bar(stat = "identity") +
   labs(
     x = "Date",
-    y = "Number of recordings",
-    title = "BCSI recording collection over time"
+    y = "Number of recordings"
   ) +
   theme_minimal()
 
@@ -241,7 +240,7 @@ bcsi_recs |>
 
 ## Data management, processing and quality control
 
-Acoustic data were uploaded and processed using WildTrax (@macphail2026wildtrax), with detections verified using expert review informed by prior experience in marine acoustic environments. Location names were confirmed against the deployment information to ensure data from each location was consistently named and aggregated from each deployment.
+Acoustic data were uploaded and processed using WildTrax (@macphail2026wildtrax). Location names, file metadata, and audio files were validated against deployment records to ensure recordings from each location were consistently named and correctly aggregated across all deployment phases.
 
 ## Community data processing
 
@@ -266,17 +265,17 @@ bcsi_seabirds[[1]] |>
   geom_density() + 
   theme_bw() + 
   ylab("Density") + 
-  xlab("HawkEars Score")
+  xlab("HawkEars v1.0.8 Score")
 
 eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_species = TRUE)
 # wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
-We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal species in the group for which the classifier already possesed species: Common Murre (*Uria aalge* ; COMU), Marbled Murrelet (*Brachyramphus marmoratus* ; MAMU), and Black Oystercatcher (*Haematopus bachmani* ; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, yielded mean score of 0.33 +/- 0.21. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion. Next, we expanded the evaluation of classifier performance using HawkEars 2.0. This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HawkEars 2.0 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates. 
+We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal species in the group for which the classifier already possesed species: Common Murre (*Uria aalge* ; COMU), Marbled Murrelet (*Brachyramphus marmoratus* ; MAMU), and Black Oystercatcher (*Haematopus bachmani* ; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, yielded mean score of 0.33 +/- 0.08. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion (@Knight02112019). Next, we expanded the evaluation of classifier performance using HawkEars 2.0 (hereafter HE2). This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HE2 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates. 
 
 ## Seabird relative abundance
 
-Positive seabird detection locations were spatially intersected with island boundary polygons derived from the [Canada Waters 2016 boundary file](https://open.canada.ca/data/en/dataset/6c78fb2f-d23b-45b4-b3af-cc6f6cc4fff8). Detection intensity across each island was estimated using inverse distance weighting (IDW) interpolation using the `gstat` R package (@pebesma2015package). For each survey location, total seabird detections were summed across all species in the target assemblage. A regular 50-m resolution grid was generated across the island extents and masked to land area only, ensuring interpolation was strictly constrained within island boundaries. IDW was computed at each grid cell as a distance-weighted mean of all detection point values, using an inverse square distance weighting function (power parameter = 2). This approach produces a continuous surface where predicted intensity at any location is most strongly influenced by nearby detection points and decays with increasing distance. No landcover covariates were used in the interpolation.
+Positive seabird detection locations from the classification step were spatially intersected with island boundary polygons derived from the [Canada Waters 2016 boundary file](https://open.canada.ca/data/en/dataset/6c78fb2f-d23b-45b4-b3af-cc6f6cc4fff8). Detection intensity across each island was estimated using inverse distance weighting (IDW) interpolation using the `gstat` R package (@pebesma2015package). For each survey location, total seabird detections were summed across all species in the target assemblage. A regular 50-m resolution grid was generated across the island extents and masked to land area only, ensuring interpolation was strictly constrained within island boundaries. IDW was computed at each grid cell as a distance-weighted mean of all detection point values, using an inverse square distance weighting function (power parameter = 2). This approach produces a continuous surface where predicted intensity at any location is most strongly influenced by nearby detection points and decays with increasing distance. No landcover covariates were used in the interpolation.
 
 # Results
 
@@ -725,51 +724,9 @@ ggplot(eval, aes(x=recall, y=precision, colour=classifier)) +
 
 ## HawkEars 2.0
 
-Initial runs of HawkEars 2.0 were conducted yielding `r nrow(bcsi_he2)` seabird detections in a total of `r nrow((bcsi_he2 |> group_by(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset. PFSH had the most HawkEars detections. CAAU, MAMU and COMU were the next most frequently detected species, with more scores in the lower and mid confidence range (0.-0.25 and 0.25-0.5). ANMU, RHAU and TUPU were detected much less overall than the other three seabird species, generally with lower confidence scores.
+Initial runs of HE2 were conducted yielding `r nrow(bcsi_he2)` seabird detections in a total of `r nrow((bcsi_he2 |> select(location, recording_date_time) |> distinct()))` recordings or `r paste0(round(nrow(bcsi_he2) / nrow(bcsi_recs) * 100, 2), " %")` of the total audio dataset. The distribution of HE2 scores differs systematically between detections that were ultimately confirmed as true positives and those reassigned during verification, with true positives generally exhibiting higher score distributions across most species. The magnitude of separation between true and false positive outcomes varies among taxa, indicating that HE2 score provides a useful but species-dependent proxy for detection confidence rather than a universal decision boundary. For several species (notably BLOY, CAAU, COMU, and MAMU), true positives tend to cluster at higher HE2 values, while lower-scoring detections are more frequently associated with reassigned calls. This structure suggests that score-based stratification can be used to define species-specific confidence thresholds, where high-score detections can be retained with increasing certainty and lower-score detections represent a continuum of uncertainty rather than binary classification error. Species such as PFSH show comparatively tight separation between true and false positive score distributions, indicating that conservative thresholds can isolate a subset of high-confidence detections with minimal loss of signal. In contrast, species with greater overlap between outcome classes (notably ANMU and RHAU) exhibit weaker discriminative structure in HE2 space, implying that score alone is insufficient for full separation and that more conservative or multi-stage filtering strategies are required for reliable inference. Results can be found in @fig-he2-final and @tbl-fp-rates.
 
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-#| include: true
-#| fig-align: center
-#| fig-height: 8
-#| fig-cap: Species detections across classifier score bins, following manual verification of classifier hits
-#| label: fig-raw-he2-proportions
-
-bcsi_he2 %>%
-  mutate(
-    score = as.numeric(species_individual_comments),
-    score = ifelse(score < 0 | score > 1, NA, score),
-    score_bin = cut(
-      score,
-      breaks = c(0, 0.25, 0.5, 0.75, 1),
-      include.lowest = TRUE,
-      labels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
-    ),
-    score_bin = factor(
-      score_bin,
-      levels = c("0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1")
-    )
-  ) %>%
-  filter(!is.na(score_bin)) %>%
-  mutate(location = factor(location)) %>%
-  ggplot(aes(x = location, fill = species_code)) +
-  geom_bar(position = "fill") +
-  facet_wrap(~ score_bin) +
-  coord_flip() +
-  scale_fill_viridis_d() +
-  labs(
-    x = "Location",
-    y = "Proportion of detections",
-    fill = "Species"
-  ) +
-  theme_minimal()
-
-```
-
-Across all `r sum(xx$total_tags)` tags assessed, `r sum(xx$verified_tags)` (`r scales::percent(sum(xx$verified_tags) / sum(xx$total_tags), accuracy = 1)`) have been manually verified, while `r sum(xx$unverified_tags)` remain unreviewed. Verification involved manual inspection of classifier outputs and reassignment of detections to correct acoustic categories; tags reassigned to non-seabird classes (NOISE, HUMVOC, UNIN, HETH, PAWR, TOWA, UNBI) represent confirmed false positives of the seabird classifier. Among target seabird taxa, performance varies substantially across species. TUPU had the largest number of detections (`r xx |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r xx |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; the majority of reviewed detections were reassigned, yielding a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1)`. RHAU showed similarly high error rates, with `r xx |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1)`. ANMU also exhibited strong misclassification within the reviewed subset, with `r xx |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags and a false positive rate of `r scales::percent(xx |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1)`, with a small number of detections (`r xx |> filter(source_species_code == "ANMU") |> pull(unverified_tags)`) remaining unreviewed. MAMU and COMU remain highly uncertain due to large proportions of unverified detections. For MAMU, `r xx |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r xx |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, and the majority of reviewed detections were reassigned (`r scales::percent(xx |> filter(source_species_code == "MAMU") |> pull(fp_rate_verified), accuracy = 1)` verified false positives). COMU shows a lower but still elevated verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1)`, with `r xx |> filter(source_species_code == "COMU") |> pull(unverified_tags)` unverified tags remaining. CAAU is now represented by a verified sample of `r xx |> filter(source_species_code == "CAAU") |> pull(verified_tags)` tags, the vast majority of which were reassigned as false positives, resulting in a verified false positive rate of `r scales::percent(xx |> filter(source_species_code == "CAAU") |> pull(fp_rate_verified), accuracy = 1)`. The majority of detections (`r xx |> filter(source_species_code == "CAAU") |> pull(unverified_tags)`) remain unreviewed, limiting inference. PFSH shows minimal misclassification within the verified subset (`r xx |> filter(source_species_code == "PFSH") |> pull(verified_tags)` verified tags, `r scales::percent(xx |> filter(source_species_code == "PFSH") |> pull(fp_rate_verified), accuracy = 1)` false positive rate), although a substantial number of detections (`r xx |> filter(source_species_code == "PFSH") |> pull(unverified_tags)`) remain unverified, meaning performance may change with full review. BLOY similarly demonstrates strong performance in the reviewed subset, with `r xx |> filter(source_species_code == "BLOY") |> pull(verified_tags)` verified tag and no false positives, although `r xx |> filter(source_species_code == "BLOY") |> pull(unverified_tags)` detections remain unverified. Non-seabird reassignment categories collectively account for `r xx |> filter(source_species_code %in% c("NOISE","HUMVOC","UNIN","HETH","PAWR","TOWA","UNBI")) |> pull(total_tags) |> sum()` tags, representing instances where the seabird classifier incorrectly assigned detections. Among these, NOISE dominates with `r xx |> filter(source_species_code == "NOISE") |> pull(total_tags)` total tags, followed by UNIN with `r xx |> filter(source_species_code == "UNIN") |> pull(total_tags)`, indicating that environmental noise and insect vocalisations are the primary sources of misclassification in this dataset.
+Across target seabird taxa, performance varies substantially in the verified subset. TUPU had a relatively low number of detections (`r audit_table |> filter(source_species_code == "TUPU") |> pull(total_tags)` total tags), of which `r audit_table |> filter(source_species_code == "TUPU") |> pull(verified_tags)` were verified; most reviewed detections fell in lower HE2 regions consistent with reassignment, yielding a verified false positive rate of `r scales::percent(audit_table |> filter(source_species_code == "TUPU") |> pull(fp_rate_verified), accuracy = 1)`. RHAU showed similarly elevated misclassification within the verified subset, with `r audit_table |> filter(source_species_code == "RHAU") |> pull(verified_tags)` verified tags and a verified false positive rate of `r scales::percent(audit_table |> filter(source_species_code == "RHAU") |> pull(fp_rate_verified), accuracy = 1)`, consistent with broader overlap in HE2 distributions. ANMU exhibited near-complete collapse of separation within the reviewed subset, with `r audit_table |> filter(source_species_code == "ANMU") |> pull(verified_tags)` verified tags and a verified false positive rate of `r scales::percent(audit_table |> filter(source_species_code == "ANMU") |> pull(fp_rate_verified), accuracy = 1)`, with `r audit_table |> filter(source_species_code == "ANMU") |> pull(unverified_tags)` detections remaining unreviewed and concentrated in higher-score regions. MAMU and COMU remain the most uncertain due to large proportions of unverified detections, but both show strong skew in HE2 distributions toward higher-score detections among the reviewed subset. For MAMU, `r audit_table |> filter(source_species_code == "MAMU") |> pull(unverified_tags)` of `r audit_table |> filter(source_species_code == "MAMU") |> pull(total_tags)` tags remain unverified, and the reviewed subset shows a very high false positive rate (`r scales::percent(audit_table |> filter(source_species_code == "MAMU") |> pull(fp_rate_verified), accuracy = 1)`), indicating that low-to-intermediate HE2 values dominate incorrect assignments. COMU shows a similarly elevated verified false positive rate of `r scales::percent(audit_table |> filter(source_species_code == "COMU") |> pull(fp_rate_verified), accuracy = 1)`, with `r audit_table |> filter(source_species_code == "COMU") |> pull(unverified_tags)` unverified detections remaining, though higher HE2 values increasingly concentrate true detections. CAAU is represented by a substantial verified sample of `r audit_table |> filter(source_species_code == "CAAU") |> pull(verified_tags)` tags, with the majority of reviewed detections occurring in lower HE2 regions consistent with reassignment, resulting in a verified false positive rate of `r scales::percent(audit_table |> filter(source_species_code == "CAAU") |> pull(fp_rate_verified), accuracy = 1)`. A large number of detections (`r audit_table |> filter(source_species_code == "CAAU") |> pull(unverified_tags)`) remain unreviewed, but the observed HE2 structure suggests strong potential for threshold-based separation. PFSH shows comparatively strong concentration of true detections at higher HE2 values, with relatively low misclassification within the verified subset (`r audit_table |> filter(source_species_code == "PFSH") |> pull(verified_tags)` verified tags, `r scales::percent(audit_table |> filter(source_species_code == "PFSH") |> pull(fp_rate_verified), accuracy = 1)` false positive rate), suggesting that conservative HE2 thresholds may retain high-confidence detections effectively even as additional data are incorporated. BLOY shows intermediate performance, with partial but not complete separation in HE2 space. It has `r audit_table |> filter(source_species_code == "BLOY") |> pull(verified_tags)` verified tags and a verified false positive rate of `r scales::percent(audit_table |> filter(source_species_code == "BLOY") |> pull(fp_rate_verified), accuracy = 1)`, indicating that score-informed filtering would likely improve signal quality but should be applied in a species-specific manner rather than globally.
 
 ```{r}
 #| echo: false
@@ -975,6 +932,7 @@ bc_coast <- read_sf("/users/alexandremacphail/desktop/coast/lhy_000h16a_e.shp") 
 
 pad <- 0.075
 bbox_scott <- bcsi_he2_all |>
+  filter(tag_is_verified == TRUE) |>
   left_join(lac_locs, by = "location") |>
   filter(!is.na(longitude), !is.na(latitude)) |>
   summarise(
@@ -1009,7 +967,7 @@ islands_vect  <- vect(islands_proj)
 birds_sf <- bcsi_he2_all |>
   left_join(lac_locs, by = "location") |>
   filter(!is.na(latitude), !is.na(longitude)) |>
-  filter(species_code %in% seabirds_codes) |>
+  filter(species_code %in% seabirds_codes, tag_is_verified == TRUE) |>
   group_by(location, latitude, longitude) |>
   summarise(counts = max(individual_order), .groups = "drop") |>
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
@@ -1050,7 +1008,7 @@ bcsi_coords <- bcsi_sf2 |>
 seabird_diel <- bcsi_he2_all |>
   mutate(julian = yday(recording_date_time),
          hour = hour(recording_date_time)) |>
-  filter(species_code %in% seabirds_codes)
+  filter(species_code %in% seabirds_codes, tag_is_verified == TRUE)
 
 ```
 
@@ -1073,7 +1031,7 @@ ggplot() +
     colour = "white",
     max.overlaps = Inf
   ) +
-  scale_fill_viridis_c(option = "magma", name = "Detection intensity") +
+  scale_fill_viridis_c(option = "magma", name = "IDW detection surface") +
   coord_sf() +
   theme_minimal() +
   labs(x = NULL, y = NULL) +
@@ -1116,7 +1074,7 @@ ggplot(seabird_diel, aes(x=julian)) +
 #| include: true
 #| fig-height: 8
 #| fig-width: 8
-#| fig-cap: Kernel density estimates oF seabird detections by hour of the day (Oh00 - 23h00). Rug plots indicate sample size of detections.
+#| fig-cap: Kernel density estimates oF seabird detections by hour of the day (0h00 - 23h00). Rug plots indicate sample size of detections.
 #| label: fig-season-seabird
 
 ggplot(seabird_diel, aes(x=hour)) +
@@ -1135,6 +1093,8 @@ ggplot(seabird_diel, aes(x=hour)) +
 This program produced a data set of sufficient resolution to support long-term passive monitoring programs, offering a scalable and repeatable method for processing large volumes of acoustic data. Misclassification rates and false positives remain an inherent limitation of the use of multi-species automated classifiers, particularly in field conditions where behavioural overlap between sound categories is common. Seabirds frequently produce detectable acoustic signals across multiple behavioural states simultaneously, vocalization, preening, and on-water activity often co-occur, complicating clean categorical assignment (@cerqueira2025automated). This reflects the ecological reality of these field recordings rather than a failure of the classification approach, and should be accounted for when interpreting detection outputs. 
 
 For future long-term deployments, a sampling rate of 22 kHz is likely sufficient given that the dominant frequencies of seabird vocalizations typically fall below 10 kHz, which would reduce storage requirements and extend battery life without meaningful loss of biological signal (@podolskiy2024acoustic). It's worth noting that these classifiers were trained and tested on datasets that included seabirds, but a more reliable assessment of their performance would involve testing them at sites where the species is actually known to be present and successfully breeding.
+
+Overall, these patterns support the use of HE2 score as a probabilistic confidence metric that enables species-specific thresholding. In this framework, detections can be stratified by score into high-confidence subsets suitable for direct ecological inference, while intermediate-score detections represent the primary domain for uncertainty resolution. This directly supports downstream construction of relative abundance surfaces by allowing spatial signal extraction from high-confidence detections while maintaining consistent and transparent filtering criteria across taxa.
 
 ## Coastal monitoring
 
