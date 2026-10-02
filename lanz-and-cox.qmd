@@ -17,7 +17,7 @@ format:
     number-sections: true
 navbar: right
 theme: cosmo
-date: "2026-08-17"
+date: "2026-09-30"
 author: 
   - name: "Alex MacPhail"
     affiliation: "Biodiversity Pathways Ltd."
@@ -807,16 +807,16 @@ aru_audit_rates <- function(project_id, group_by = c("species", "observer"), n =
 }
 speciess <- wt_get_species() |> select(species_code, species_id, species_common_name)
     
-aud <- wt_get_view("project_aru_tasks", project = 4346) |>
+aud_fix <- wt_get_view("project_aru_tasks", project = 4792) |>
   unnest_longer(detectedSpeciesIds) |>
   left_join(speciess, by = c("detectedSpeciesIds" = "species_id")) |>
-  dplyr::slice(1:40665) |> # All the data, but it gets split (see below)
+  dplyr::slice(1:1874) |> # All the data, but it gets split (see below)
   pull(taskId) |>
   purrr::map(audit_local) |>
   purrr::keep(\(x) nrow(x) > 0) |>
   purrr::list_rbind()
 
-audit_all <- bind_rows(aud1, aud2, aud3, aud4, aud5, aud6, aud7)
+audit_all <- bind_rows(aud1, aud2, aud3, aud4, aud5, aud6, aud7, aud_fix)
 
 audit_all_setup <- audit_all |>
   dplyr::select(ar_tag_id, ar_date, ar_action, source_species_code, source_species_common_name, target_species_code) |>
@@ -843,6 +843,26 @@ audit_table <- audit_all_setup |>
     .groups = "drop"
   )
 
+new_rows <- data.frame(
+  source_species_code        = c("ANMU", "TUPU"),
+  source_species_common_name = c("Ancient Murrelet", "Tufted Puffin"),
+  total_tags                 = c(2678, 257)
+)
+
+new_rows$verified_tags    <- new_rows$total_tags
+new_rows$false_positives  <- new_rows$verified_tags
+new_rows$fp_rate_verified <- new_rows$false_positives / new_rows$verified_tags
+new_rows$tp_rate_verified <- 1 - new_rows$fp_rate_verified
+new_rows$unverified_tags  <- new_rows$total_tags - new_rows$verified_tags
+new_rows$fp_rate_upper    <- (new_rows$false_positives + new_rows$unverified_tags) / new_rows$total_tags
+new_rows$fp_rate_lower    <- new_rows$false_positives / new_rows$total_tags
+
+# keep the original column order, then replace the matching rows
+new_rows <- new_rows[, names(audit_table)]
+audit_table_new <- rbind(
+  audit_table[!audit_table$source_species_code %in% new_rows$source_species_code, ],
+  new_rows
+)
 ```
 
 ```{r}
@@ -874,7 +894,10 @@ tag_classification <- audit_all_setup |>
       verified ~ "True Positive",
       TRUE ~ "Unverified"
     )
-  )
+  ) |>
+mutate(false_positive = case_when(source_species_code == "TUPU|ANMU" ~ TRUE, TRUE ~ false_positive),
+       verified = case_when(source_species_code == "TUPU" ~ TRUE, TRUE ~ verified),
+       outcome = case_when(source_species_code == "TUPU" ~ "False Positive", TRUE ~ outcome))
 
 ggplot(
   tag_classification |>
@@ -938,13 +961,14 @@ Spatial patterns of seabird relative abundance across the Scott Islands are show
 #| message: false
 #| include: true
 
-bcsi_he2_all <- wt_download_report(4346, 'ARU', 'tag')
+bcsi_he2_all <- wt_download_report(c(4346,4792), 'ARU', 'tag')
 
 bc_coast <- read_sf("/users/alexandremacphail/desktop/coast/lhy_000h16a_e.shp") |>
   st_make_valid()
 
 pad <- 0.075
 bbox_scott <- bcsi_he2_all |>
+  bind_rows() |>
   filter(tag_is_verified == TRUE) |>
   left_join(lac_locs, by = "location") |>
   filter(!is.na(longitude), !is.na(latitude)) |>
@@ -978,6 +1002,7 @@ islands_proj  <- st_transform(scott_islands, 32610)
 islands_vect  <- vect(islands_proj)
 
 birds_sf <- bcsi_he2_all |>
+  bind_rows() |>
   left_join(lac_locs, by = "location") |>
   filter(!is.na(latitude), !is.na(longitude)) |>
   filter(species_code %in% seabirds_codes, tag_is_verified == TRUE) |>
@@ -1019,6 +1044,7 @@ bcsi_coords <- bcsi_sf2 |>
          y = st_coordinates(geometry)[,2])
 
 seabird_diel <- bcsi_he2_all |>
+  bind_rows() |>
   mutate(julian = yday(recording_date_time),
          hour = hour(recording_date_time)) |>
   filter(species_code %in% seabirds_codes, tag_is_verified == TRUE)
@@ -1066,7 +1092,7 @@ ggplot() +
 #| fig-cap: Kernel density estimate of seabird detections on Lanz and Cox Islands by time of year (julian date). Rug plots indicate sample size of detections.
 #| label: fig-diel-day-seabird
 
-ggplot(seabird_diel, aes(x=julian)) +
+ggplot(seabird_diel |> filter(!species_code %in% c("ANMU","TUPU")), aes(x=julian)) +
   geom_density() +
   geom_rug(alpha = 0.3) +
   facet_wrap(~species_code) +
@@ -1090,7 +1116,7 @@ ggplot(seabird_diel, aes(x=julian)) +
 #| fig-cap: Kernel density estimates of seabird detections by hour of the day (0h00 - 23h00). Rug plots indicate sample size of detections.
 #| label: fig-season-seabird
 
-ggplot(seabird_diel, aes(x=hour)) +
+ggplot(seabird_diel |> filter(!species_code %in% c("ANMU","TUPU")), aes(x=hour)) +
   geom_density() +
   geom_rug(alpha = 0.3) +
   facet_wrap(~species_code) +
