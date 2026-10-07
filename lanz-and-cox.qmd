@@ -67,6 +67,9 @@ library(sf)
 library(gstat)
 library(ggrepel)
 library(terra)
+library(htmlwidgets)
+library(webshot2)
+library(knitr)
 
 #wildrtrax::wt_auth()
 #spp_tbl <- wt_get_species() |> select(species_code, species_order)
@@ -134,24 +137,46 @@ Several ARU locations were relocated slightly further from the shoreline during 
 #| fig-cap: Locations from Lanz and Cox Islands Park ARU Monitoring Program
 #| label: fig-aru-monitoring-locations
 
-m <- leaflet() %>%
+pad <- 0.2  # fraction of extent to add as margin
+
+lng_rng <- range(lac_locs$longitude, na.rm = TRUE)
+lat_rng <- range(lac_locs$latitude,  na.rm = TRUE)
+pad_x <- diff(lng_rng) * pad
+pad_y <- diff(lat_rng) * pad
+
+m <- leaflet(
+  width = 1000, height = 700,
+  options = leafletOptions(
+    zoomAnimation = FALSE,
+    fadeAnimation = FALSE,
+    markerZoomAnimation = FALSE
+  )
+) %>%
   addTiles() %>%
   addCircleMarkers(
     data = lac_locs,
+    lng = ~longitude, lat = ~latitude,
     popup = ~paste("Location:", location, "<br>"),
-    fillOpacity = 1,
-    color = "black", 
-    radius = 6 
+    fillColor = "#d1c3fd", fillOpacity = 1,
+    color = "black", weight = 1, radius = 6
   ) %>%
   addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "sqmeters") %>%
   addMiniMap(position = "bottomleft")
 
-if (knitr::is_html_output()) {
+if (is_html_output()) {
   m
 } else {
   map_file <- "map_aru_locations.png"
-  if (!file.exists(map_file)) mapview::mapshot2(m, file = map_file)
-  knitr::include_graphics(map_file)
+  if (!file.exists(map_file)) {
+    tmp_html <- tempfile(fileext = ".html")
+    saveWidget(m, tmp_html, selfcontained = TRUE)
+    webshot(
+      tmp_html, file = map_file,
+      vwidth = 1000, vheight = 700,
+      delay = 8
+    )
+  }
+  include_graphics(map_file)
 }
 
 ```
@@ -173,7 +198,11 @@ bcsi_locs <- bcsi_recs |>
   mutate(surveyed = 1) |>
   pivot_wider(names_from = year, values_from = surveyed, values_fill = 0)
 
-datatable(bcsi_locs)
+if (knitr::is_html_output()) {
+  DT::datatable(bcsi_locs)
+} else {
+  knitr::kable(bcsi_locs, digits = 5)
+}
 
 ```
 
@@ -560,7 +589,11 @@ species_tally <- bcsi_main |>
 #| code-fold: true
 #| tbl-cap: Count of detections per species
 
-datatable(species_tally)
+if (knitr::is_html_output()) {
+  DT::datatable(species_tally)
+} else {
+  knitr::kable(species_tally)
+}
 
 ```
 
@@ -930,27 +963,35 @@ ggplot(
 #| label: tbl-fp-rates
 #| tbl-cap: Rates of verification and classification for seabirds under HawkEars v2.0
 
-audit_table |>
+audit_summary_table <- audit_table |>
   left_join(spp_tbl, by = c("source_species_code" = "species_code")) |>
   filter(species_order == "Charadriiformes", !(source_species_code == "UNGU")) |>
-  group_by(source_species_code, source_species_common_name) %>%
+  group_by(source_species_code, source_species_common_name) |>
   summarise(
     total_tags      = sum(total_tags, na.rm = TRUE),
     verified_tags   = sum(verified_tags, na.rm = TRUE),
     false_positives = sum(false_positives, na.rm = TRUE),
     unverified_tags = sum(unverified_tags, na.rm = TRUE),
     .groups = "drop"
-  ) %>%
+  ) |>
   mutate(
     fp_rate_verified = false_positives / verified_tags,
     tp_rate_verified = 1 - fp_rate_verified
   ) |>
-  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
-  datatable()
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+if (knitr::is_html_output()) {
+  DT::datatable(audit_summary_table)
+} else {
+  knitr::kable(
+    audit_summary_table,
+    col.names = c("Code", "Species", "Total tags", "Verified", "False positives",
+                  "Unverified", "FP rate", "TP rate"),
+    format.args = list(big.mark = ",")
+  )
+}
 
 ```
-
-Seabird relative abundance and activity
 
 Spatial patterns of seabird relative abundance across the Scott Islands are shown in @fig-heatmap-seabirds. Only true positives were used in the detection inference. Detection intensity exhibited strong spatial clustering, with activity concentrated predominantly in the northwestern portion of Lanz Island. Two distinct hotspots were identified in the northwest and west-central areas of Lanz Island, with intensity declining steeply eastward across the island. Cox Island displayed comparatively lower and more spatially uniform detection intensity overall, though notable areas of elevated abundance were observed in both the western and eastern portions of the island. Diel patterns of seabird detections can also be found in @fig-diel-day-seabird and @fig-season-seabird. Median julian date of detections was 210 (July 29th) and the most common hours of detections were between dusk hour and before sunrise.
 
