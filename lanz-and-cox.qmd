@@ -156,8 +156,14 @@ m <- leaflet(
   addCircleMarkers(
     data = lac_locs,
     lng = ~longitude, lat = ~latitude,
-    popup = ~paste("Location:", location, "<br>"),
-    fillColor = "#d1c3fd", fillOpacity = 1,
+    label = ~location,
+    labelOptions = labelOptions(noHide = TRUE,
+                                direction = "top",
+                                textOnly = TRUE,
+                                offset = c(-2, -2),
+                                style = list("font-size" = "9px", "font-weight" = "bold", "transform" = "rotate(-45deg)")),
+    fillColor = "
+#d1c3fd", fillOpacity = 1,
     color = "black", weight = 1, radius = 6
   ) %>%
   addMeasure(primaryLengthUnit = "meters", primaryAreaUnit = "sqmeters") %>%
@@ -310,7 +316,7 @@ eval <- wt_evaluate_classifier(bcsi_seabirds, resolution = "recording", remove_s
 # wt_additional_species(bcsi_seabirds, remove_species = TRUE, threshold = 0.8, resolution = "task")
 ```
 
-We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal marine species in the group for which the classifier already had species included: Common Murre (*Uria aalge*; COMU), Marbled Murrelet (*Brachyramphus marmoratus*; MAMU), and Black Oystercatcher (*Haematopus bachmani*; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, which yielded a mean score of 0.33 +/- 0.08. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion (@Knight02112019). Next, we expanded the evaluation of classifier performance using HawkEars 2.0 (hereafter HE2). This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HE2 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates.
+We first wanted to assess the accuracy of the current version of the HawkEars (v1.0.8) classifier for three focal marine species in the group for which the classifier already had species included: Common Murre (*Uria aalge*; COMU), Marbled Murrelet (*Brachyramphus marmoratus*; MAMU), and Black Oystercatcher (*Haematopus bachmani*; BLOY). We extracted all recordings from WildTrax in which the classifier detected these species, which yielded a mean score of 0.33 +/- 0.08. A human reviewer then verified each task, confirming detections as either true positives (TP) where the species was audible and confirmed, or false positives (FP) where the identification was incorrect. Using these verified results, we applied the `wt_evaluate_classifier()` and `wt_classifier_threshold()` functions from the `wildrtrax` R package (@macphail-wildrtrax) to calculate precision, recall, and *F*-score. This allowed us to identify the minimum confidence threshold at which classifier performance was deemed acceptable for each species, balancing the trade-off between retaining true detections and excluding false positives. Recordings scoring below this optimized threshold were excluded from subsequent analyses, while those meeting or exceeding it were accepted without further manual review. This approach is consistent with emerging best practices for deploying automated classifiers at scale, where full human review is impractical and a validated threshold provides a reproducible and defensible basis for data inclusion (@Knight02112019). Next, we expanded the evaluation of classifier performance using HawkEars 2.0 (hereafter HE2). This updated model, which is not currently implemented within WildTrax, incorporates an expanded seabird species set: Cassin's auklet (*Ptychoramphus aleuticus*; CAAU), Pink-footed Shearwater (*Puffinus creatopus* ; PFSH), Ancient Murrelet (*Synthliboramphus antiquus* ; ANMU), Tufted Puffin (*Fratercula cirrhata* ; TUPU) and Rhinoceros Auklet (*Cerorhinca monocerata* ; RHAU). We conducted a structured verification of outputs from HE2 by manually reviewing detections and identified any systematic misclassifications, in order to evaluate how the expanded species list influenced both true positive retention and false positive rates.
 
 Positive seabird detection locations from the classification step were spatially intersected with island boundary polygons derived from the [Canada Waters 2016 boundary file](https://open.canada.ca/data/en/dataset/6c78fb2f-d23b-45b4-b3af-cc6f6cc4fff8). Detection intensity across each island was estimated using inverse distance weighting (IDW) interpolation using the `gstat` R package (@pebesma2015package). For each survey location, total seabird detections were summed across all species in the target assemblage. A regular 50-m resolution grid was generated across the island extents and masked to land area only, ensuring interpolation was strictly constrained within island boundaries. IDW was computed at each grid cell as a distance-weighted mean of all detection point values, using an inverse square distance weighting function (power parameter = 2). This approach produces a continuous surface where predicted intensity at any location is most strongly influenced by nearby detection points and decays with increasing distance. No landcover covariates were used in the interpolation.
 
@@ -318,7 +324,8 @@ Positive seabird detection locations from the classification step were spatially
 
 ## Noise effects
 
-Noisier recordings captured fewer birds (@fig-ind-noise). At Low and Medium noise levels, recorders typically detected around 5 individuals per recording, while High and Extreme noise levels roughly halved that, dropping to medians of approximately 3 and 2 individuals respectively. At the noisiest sites, many recordings picked up no birds at all. Occasional bursts of high detections (up to 20 individuals) did occur even under noisy conditions, but these were the notable exception. Not all sites experienced the same noise conditions (@fig-noise-loc). Most DC (Cox Island) sites were consistently loud, with the majority reaching High noise levels and DC13 and DC15 hitting Extreme. DL (Lanz Island) sites were generally quieter, with most sitting around Medium noise, though DL02, DL11, DL12, and DL15 also reached High levels. DL06 stood out as the quietest location overall. Several sites also fluctuated across noise categories over the survey period, meaning detection conditions were not always consistent even within a single location. The systematically higher noise at DC sites likely explains some of the lower and more variable seabird detections recorded there compared to DL sites.
+Noisier recordings captured fewer birds (@fig-ind-noise). At Low and Medium noise levels, recorders typically detected around 5 individuals per recording, while High and Extreme noise levels roughly halved that, dropping to medians of approximately 3 and 2 individuals respectively. At the noisiest sites, many recordings picked up no birds at all. Occasional bursts of high detections (up to 20 individuals from multiple species) did occur even under noisy conditions, but these were the notable exception. Not all sites experienced the same noise conditions (@fig-noise-loc). Most DC (Cox Island) sites were consistently loud, with the majority reaching High noise levels and DC13 and DC15 (northwest side of Cox Island) hitting Extreme. DL (Lanz Island) sites were generally quieter, with most sitting around Medium noise, though DL02, DL15 (west side of Lanz Island) and DL11, and DL12, and DL15 (east side of Lanz Island) also reached High levels. DL06 (northern interior site)  stood out as the quietest location overall. Several sites also fluctuated across noise categories over the survey period, meaning detection conditions were not always consistent even within a single location. The systematically higher noise at DC sites likely explains some of the lower and more variable seabird detections recorded there compared to DL sites.
+
 
 Island identity (Lanz vs. Cox Island) did not significantly improve model fit (ΔAIC = 0.07, p = 0.16), nor was there evidence for an interaction between island and distance from coast (ΔAIC = 1.94, p = 0.79), indicating that the relationship between distance to coast and noise level was consistent across islands. Distance to coast showed a clear shift in the probability distribution across noise categories (@fig-noise-distance), with the probability of High noise declining substantially with increasing distance, from \~45% at 50 m to \~15–20% near 750 m. In contrast, the probability of Low noise increased steadily with distance, rising from \~5–10% near the coast to \~30% inland. Medium noise remained the most probable category across most distances, peaking around \~50–55% at intermediate distances (\~600–800 m), while Extreme noise was consistently rare and declined slightly with distance (\~10% to \<5%). Coast direction did not appear to play an important role for either Lanz or Cox Islands (@fig-noise-direction).
 
@@ -374,7 +381,7 @@ bcsi_main |>
 #| message: false
 #| include: true
 #| fig-align: center
-#| fig-cap: Noise per location on Scott Islands
+#| fig-cap: Noise per location on Scott Islands. Colours indicate the noise level and the y-axis describe the ARU locations (DC = Cox Island, DL = Lanz Island).
 #| label: fig-noise-loc
 
 bcsi_main |>
@@ -509,7 +516,7 @@ pred_dir <- map_dfr(1:nrow(coast_grid), function(i) {
 #| message: false
 #| include: true
 #| fig-align: center
-#| fig-cap: Noise per distance
+#| fig-cap: Noise per distance to coast
 #| label: fig-noise-distance
 
 ggplot(pred_dist, aes(x = x, y = predicted,
@@ -559,7 +566,7 @@ ggplot(pred_dir,
 
 ## Songbird results
 
-A total of songbird `r nrow(distinct_spp)` species were found with a summary of detections found at @tbl-spp-summary. @fig-spp-rich-locs describes the relationship of species richness for each location across the two years of surveys. Shannon's diversity was also calculated (see @fig-shannon). No significant differences in species richness or Shannon's diversity were obsvered between years.
+A total of 22 songbird species were detected, with a summary of detections provided in @tbl-spp-summary. Species richness for each location across the two survey years is shown in @fig-spp-rich-locs, and Shannon’s diversity is shown in @fig-shannon. Both metrics were significantly lower in 2025 than in 2024. Mean species richness per location was 10.7 ± 2.8 SD in 2024 (n = 18 locations) and 8.5 ± 3.9 in 2025 (n = 19), with a mixed-effects model (location as a random effect) estimating a decline of 1.9 species (95% CI: 0.5 to 3.3, p = 0.006). Median Shannon’s diversity fell from 2.15 in 2024 to 1.77 in 2025 (estimated difference = −0.24, 95% CI: −0.39 to −0.10, p = 0.001), and values were more variable among locations in 2025 (range: 0.86–2.48) than in 2024 (range: 1.54–2.48). Paired comparisons of the 17 locations sampled in both years supported these results for both richness (mean decline = 1.7 species; paired t-test: t(16) = 2.43, p = 0.027; Wilcoxon signed-rank test: V = 21.5, p = 0.028) and Shannon’s diversity (paired t-test: t(16) = 2.96, p = 0.009; Wilcoxon signed-rank test: V = 15, p = 0.004).
 
 ```{r}
 #| warning: false
@@ -743,10 +750,9 @@ bcsi_seasonal |>
 
 ```
 
-
 ## Seabird results
 
-Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both Birdnet v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (\~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: Birdnet v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching \~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that Birdnet v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
+Precision-recall curves were generated to evaluate classifier performance across all confidence thresholds for both BirdNET v2.1 and HawkEars v1.0.8. At low recall values (≤ 0.25), both classifiers achieved comparable precision (\~0.65), indicating that high-confidence detections from either classifier are similarly reliable. As recall increased, classifier performance diverged: BirdNET v2.1 maintained a moderately higher precision across mid-to-high recall values (0.25–1.0), stabilizing around 0.30 at full recall. HawkEars declined more steeply, reaching \~0.13 at high recall, though it exhibited considerable variability across species (wide confidence interval) particularly between recall values of 0.25–0.75. These results suggest that BirdNET v2.1 is more conservative and consistent when detections are aggregated across species, while HawkEars shows greater species-level variability in the precision-recall tradeoff. The optimal operating threshold for both classifiers lies at low-to-moderate recall, where precision remains above 0.50.
 
 ```{r}
 #| echo: false
@@ -1183,5 +1189,3 @@ This study does not attempt to derive absolute abundance or population size esti
 ## Coastal monitoring
 
 Passive acoustic monitoring in high geophonic noise environments presents a significant methodological challenge, as abiotic noise sources including wave action, wind, and hydrological activity, can mask biological signals across relevant frequency ranges. The present dataset indicates a gradient in background noise intensity from coastal to inland sites, with the most pronounced transition occurring between the High and Low noise categories. While geophonic noise levels did not directly predict seabird detection rates, their pervasive influence on signal-to-noise ratios warrants careful consideration in site selection and recorder placement. Monitoring stations situated in high-noise environments risk systematic underdetection of target species, potentially biasing occupancy and abundance estimates if not corrected for in subsequent analyses. For the sake of this report, here we refer to noise as natural, environmental noise.
-
-
